@@ -1,0 +1,304 @@
+
+@media screen and (min-width: 200px)
+{
+    .maincontainer
+    {
+        display: flex;
+        flex-direction: column;
+    }
+
+
+.sidebar:hover {
+    width: 200px;
+}
+
+.sidebar:hover ~ .studybuddy-container {
+    margin-left: 50vh;
+    width: 100vh;
+}
+    .studybuddy-container
+    {
+        width: 100vh;
+        height: 150vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .calendar
+    {
+        width: auto;
+        height: 100vh;
+    }
+
+
+
+    .calendar__header
+    {
+
+    }
+
+    .calendar__navigation
+    {
+
+    }
+
+    .feature-row
+    {
+        width: auto;
+        height: auto;
+    }
+
+    .timer-container
+    {
+        width: 100vh;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-left: 22vh;
+    }
+
+}
+
+@media screen and (min-width: 600px)
+{
+    .maincontainer
+    {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .studybuddy-container
+    {
+        width: 120vh;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .calendar
+    {
+        width: auto;
+        height: 100vh;
+    }
+
+    .calendar__header
+    {
+
+    }
+
+    .calendar__navigation
+    {
+
+    }
+
+    .feature-row
+    {
+
+    }
+
+    .timer-container
+    {
+        width: auto;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+}
+
+@media screen and (min-width:900px)
+{
+    .maincontainer
+    {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .studybuddy-container
+    {
+    width: 95vh;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+
+    /* Center it horizontally + vertically */
+    justify-content: center;
+    align-items: center;
+    }
+
+    .calendar
+    {
+        width: 85%;
+        height: auto;
+    }
+
+    .calendar__header
+    {
+
+    }
+
+    .calendar__navigation
+    {
+
+    }
+
+    .feature-row
+    {
+        .activity-panel
+        {
+
+        }
+    }
+
+    .todo-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 1;
+    min-width: 0;
+    max-width: 50vh;
+    overflow: auto;
+    }
+
+    .activity-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 1;
+    min-width: 0;
+    max-width: 50vh;
+    overflow: auto;
+    }
+
+    .timer-container
+    {
+    height: 85vh;
+    width: 95vh;
+    margin: auto;
+    margin-left: 12px;
+    margin-right: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px;
+    background: #d2e7d6;
+    border-radius: 18px;
+    box-sizing: border-box;
+    transition: margin-left 0.4s ease, width 0.4s ease;
+    }
+
+    .pomodoro-timer {
+    width: 80vh;
+    height: 75vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #e8f4ea;
+    border-radius: 16px;
+    padding: 30px 20px;
+    height: 100%;
+    box-shadow: 0 12px 30px rgba(70, 127, 100, 0.06);
+}
+
+}
+
+
+@media screen and (min-width: 1440px)
+{
+    .maincontainer
+    {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .studybuddy-container
+    {
+        width: 90vh;
+        height: 85vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .calendar
+    {
+        width: 90%;
+        height: auto;
+    }
+
+    .calendar__header
+    {
+
+    }
+
+    .calendar__navigation
+    {
+
+    }
+
+    .feature-row
+    {
+        .activity-panel
+        {
+
+        }
+    }
+
+    .todo-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 1;
+    min-width: 0;
+    max-width: 50vh;
+    overflow: auto;
+    }
+
+    .activity-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 1;
+    min-width: 0;
+    max-width: 50vh;
+    overflow: auto;
+    }
+
+    .timer-container
+    {
+    height: 85vh;
+    width: 90vh;
+    margin: auto;
+    margin-left: 12px;
+    margin-right: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px;
+    background: #d2e7d6;
+    border-radius: 18px;
+    box-sizing: border-box;
+    transition: margin-left 0.4s ease, width 0.4s ease;
+    }
+
+    .pomodoro-timer {
+    width: 80vh;
+    height: 75vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #e8f4ea;
+    border-radius: 16px;
+    padding: 30px 20px;
+    height: 100%;
+    box-shadow: 0 12px 30px rgba(70, 127, 100, 0.06);
+}
+
+}

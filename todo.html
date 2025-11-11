@@ -1,0 +1,162 @@
+<html>
+
+<head>
+    <title>StudyBuddy</title>
+    <link rel="stylesheet" href="todo.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ephesis&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
+
+</head>
+
+<body>
+      
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="images.png" alt="logo">
+            <h2>StudyBuddy</h2>
+        </div>
+
+        <ul class="sidebar-links">
+            <h4>
+                <span>Main Menu</span>
+                <div class="menu-separator"></div>
+            </h4>
+
+            <div class="toastBox"></div>
+
+            <li>
+                <a href="studbud.html">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <li>
+                <a href="todo.html">
+                    <span class="material-symbols-outlined">calendar_check</span>
+                    Cal-Do
+                </a>
+                </li>
+            <li>
+                <a href="pomodoro.html">
+                    <span class="material-symbols-outlined">timer</span>
+                    Pomodoro Timer
+                </a>
+            </li>
+
+            <h4>
+                <span>Account</span>
+                <div class="menu-separator"></div>
+            </h4>
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined" onClick="showToast()">person</span>
+                    Profile
+                </a>
+            </li>
+
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined" onClick="showToast()">settings</span>
+                    Settings
+                </a>
+            </li>
+
+            <li>
+                <a href="#">
+                    <span class="material-symbols-outlined" onClick="showToast()">logout</span>
+                    Logout
+                </a>
+            </li>
+            <div id="toast" class="toast">Coming soon!</div>
+        </ul>
+
+        <div class="user-account">
+            <div class="user-profile">
+                <img src="bee.jpg" alt="profile-img">
+                <div class="user-detail">
+                    <h3>Sia Pineda</h3>
+                    <span>Web Developer</span>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+    
+    <!---TODO--->
+    <!---Calendar--->
+
+    <!---Calendar--->
+
+    <div class="studybuddy-container">
+        <main class="calendar">
+            <header class="calendar__header">
+                <div class="calendar__navigation">
+                    <button class="nav-btn" id="prev-month">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <h1 id="calendar-title">Month</h1>
+                    <button class="nav-btn" id="next-month">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
+                <span class="calendar__underline"></span>
+            </header>
+
+            <section class="calendar__grid" id="calendar-grid"></section>
+        </main>
+
+        <!---------------------------------------------------------To-Do--->
+    </div>
+
+    <!---------------------------------------------------------Pomodoro--->
+
+    <div class="timer-container">
+        <div class="feature-row">
+            <div class="feature-box activity-panel">
+                <h2>Dues for <span id="selected-date">Today</span></h2>
+                <ul id="activity-list"></ul>
+            </div>
+
+            <div class="feature-box todo-panel">
+                <header class="todo-header">
+                    <h2>To-Do</h2>
+                    <div class="todo-underline"></div>
+                </header>
+
+                <div class="todo-body">
+                    <form id="todo-form" class="todo-form" aria-label="Add new task">
+                        <input id="todo-title" type="text" placeholder="Task title" required autocomplete="off">
+                        <input id="todo-time" type="time" aria-label="time (optional)">
+                        <button type="submit" class="todo-add">Add</button>
+                        
+                      <div class="todo-actions">
+                        <button class="todo-btn delete">🗑️</button>
+                        </div>
+                    </form>
+
+                    
+
+                    <div class="todo-table">
+                        <div class="todo-table-head">
+                            <span class="col-title">TITLE</span>
+                            <span class="col-time">TIME</span>
+
+                        </div>
+
+                        <ul id="todo-list" class="todo-list" aria-live="polite"></ul>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="todo.js"></script>
+</body>
+
+</html>
