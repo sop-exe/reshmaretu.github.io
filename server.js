@@ -17,6 +17,11 @@ webpush.setVapidDetails(
 
 let subscriptions = [];
 
+// ✅ Root route (for Render health check or browser visit)
+app.get('/', (req, res) => {
+  res.send('📬 StudyBuddy Push Notification Server is running successfully!');
+});
+
 app.post('/subscribe', (req, res) => {
   const sub = req.body;
   if (sub && sub.endpoint && !subscriptions.find(s => s.endpoint === sub.endpoint)) {
