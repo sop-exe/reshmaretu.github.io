@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>StudyBuddy</title>
+	<meta name="theme-color" content="#c1121f">
+	<link rel="icon" href="images.png">
+	<style>
+		:root{--accent:#c1121f;--bg:#fff7f7;--muted:#e9ecef;--text:#222}
+		*{box-sizing:border-box}
+		html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif;background:#fff;color:var(--text)}
+		.container{max-width:980px;margin:0 auto;padding:16px}
+		header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+		h1{font-size:20px;margin:0}
+		.status{opacity:.8}
+
+		/* Pomodoro */
+		.timer-card{background:var(--bg);border:1px solid var(--muted);border-radius:12px;padding:16px;margin-bottom:16px}
+		.timer-display{font-variant-numeric:tabular-nums;letter-spacing:1px;font-weight:700;font-size:56px;text-align:center;margin:8px 0 12px}
+		.timer-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+		button{appearance:none;border:1px solid var(--accent);background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;font-weight:600}
+		button.secondary{background:#fff;color:var(--accent)}
+		button:disabled{opacity:.6;cursor:not-allowed}
+
+		/* Calendar + To-do layout */
+		.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+		@media (max-width:900px){.grid{grid-template-columns:1fr}}
+
+		.card{border:1px solid var(--muted);border-radius:12px;padding:16px}
+		.card h2{font-size:16px;margin:0 0 12px 0}
+
+		.calendar__header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+		.calendar__title{font-weight:700}
+		.calendar__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+		.calendar__cell{border:1px solid var(--muted);border-radius:8px;min-height:44px;display:flex;align-items:center;justify-content:center}
+		.calendar__cell--label{background:#fafafa;font-weight:600}
+		.calendar__cell--muted{opacity:.55}
+		.calendar__cell.today{outline:2px solid var(--accent)}
+		.calendar__cell.active{background:#fff0f0;border-color:#ffb3b3}
+		.calendar__dot{width:6px;height:6px;border-radius:50%;position:absolute;transform:translateY(14px)}
+		.calendar__cell{position:relative}
+		.calendar__dot.pending{background:#e63946}
+		.calendar__dot.submitted{background:#2a9d8f}
+
+		/* Tooltip */
+		.calendar-tooltip{position:absolute;z-index:20;min-width:220px;max-width:300px;background:#fff;border:1px solid var(--muted);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.12);padding:10px;opacity:0;pointer-events:none;transition:opacity .15s}
+		.calendar-tooltip.show{opacity:1;pointer-events:auto}
+		.calendar-tooltip .tt-header{font-weight:700;margin-bottom:6px}
+		.calendar-tooltip .tt-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #eee}
+		.calendar-tooltip .tt-row:last-child{border-bottom:none}
+		.tt-status.pending{color:#e63946}
+		.tt-status.submitted{color:#2a9d8f}
+
+		/* To-do */
+		form#todo-form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+		form#todo-form input{flex:1 1 220px;padding:10px;border:1px solid var(--muted);border-radius:10px}
+		form#todo-form button{padding:10px 14px}
+		#todo-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+		.todo-item{border:1px solid var(--muted);border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:space-between}
+		.todo-item .left{min-width:0}
+		.todo-item .title{font-weight:600;margin-right:8px}
+		.todo-item .time{opacity:.75}
+		.todo-actions .todo-btn{background:#fff;color:#d00000;border-color:#d00000}
+		.todo-placeholder{padding:8px;color:#666}
+
+		/* Toast */
+		#toast{position:fixed;right:16px;bottom:16px;background:#333;color:#fff;padding:10px 12px;border-radius:8px;opacity:0;transform:translateY(8px);transition:all .2s;z-index:50}
+		#toast.show{opacity:1;transform:none}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<h1>StudyBuddy</h1>
+			<div class="status" id="timerStatus">Ready to focus?</div>
+		</header>
+
+		<section class="timer-card" aria-label="Pomodoro timer">
+			<div id="timerDisplay" class="timer-display" aria-live="polite">25:00</div>
+			<div class="timer-actions">
+				<button id="startBtn" aria-label="Start timer">Start</button>
+				<button id="pauseBtn" class="secondary" aria-label="Pause timer" disabled>Pause</button>
+				<button id="pomoBtn" class="secondary" aria-label="Pomodoro mode">Pomodoro</button>
+				<button id="sbBtn" class="secondary" aria-label="Short break">Short Break</button>
+				<button id="lbBtn" class="secondary" aria-label="Long break">Long Break</button>
+			</div>
+		</section>
+
+		<div class="grid">
+			<section class="card" aria-label="Calendar">
+				<div class="calendar__header">
+					<button id="prev-month" aria-label="Previous month">◀</button>
+					<div class="calendar__title" id="calendar-title">Month YYYY</div>
+					<button id="next-month" aria-label="Next month">▶</button>
+				</div>
+				<div id="calendar-grid" class="calendar__grid" role="grid" aria-label="Calendar grid"></div>
+				<div style="margin-top:10px;opacity:.8">Selected: <span id="selected-date">YYYY-MM-DD</span></div>
+				<h2 style="margin-top:12px">Dues</h2>
+				<ul id="activity-list"></ul>
+			</section>
+
+			<section class="card" aria-label="To-do list">
+				<h2>To‑do</h2>
+				<form id="todo-form">
+					<input id="todo-title" type="text" placeholder="Task title" autocomplete="off" aria-label="Task title">
+					<input id="todo-time" type="time" aria-label="Task time">
+					<button type="submit">Add</button>
+				</form>
+				<ul id="todo-list"></ul>
+			</section>
+		</div>
+	</div>
+
+	<!-- Toast -->
+	<div id="toast" role="status" aria-live="polite">Saved</div>
+
+	<!-- Audio (tiny embedded tones to avoid missing files) -->
+	<audio id="alarm" preload="auto">
+		<source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABYAZGF0YQAAAAAA" type="audio/wav">
+	</audio>
+	<audio id="buttonclick" preload="auto">
+		<source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABYAZGF0YQAAAAAA" type="audio/wav">
+	</audio>
+
+	<script src="studbud.js"></script>
+	<!-- service worker registers inside studbud.js -->
+</body>
+</html>
+
+
