@@ -869,6 +869,50 @@ async function notifyEnd() {
   }
 }
 
+// Notifications UI helpers
+function setNotifStatus(text) {
+  try {
+    var el = document.getElementById('notifStatus');
+    if (el) el.textContent = text;
+  } catch (e) {}
+}
+
+function refreshNotifUI() {
+  var supported = ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window);
+  var btn = document.getElementById('enableNotificationsBtn');
+  if (!btn) return;
+  if (!supported) {
+    btn.disabled = true;
+    setNotifStatus('Notifications not supported in this browser.');
+    return;
+  }
+  var perm = Notification.permission;
+  if (perm === 'granted') {
+    btn.disabled = true;
+    setNotifStatus('Notifications enabled.');
+  } else if (perm === 'denied') {
+    btn.disabled = true;
+    setNotifStatus('Notifications blocked in browser settings.');
+  } else {
+    btn.disabled = false;
+    setNotifStatus('Click Enable to receive timer alerts.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  var btn = document.getElementById('enableNotificationsBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      subscribeUser().then(function () {
+        refreshNotifUI();
+      }).catch(function () {
+        refreshNotifUI();
+      });
+    });
+  }
+  refreshNotifUI();
+});
+
 // ------------------------------------------------------ Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
