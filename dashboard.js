@@ -122,105 +122,98 @@ function handleAffirmationClick() {
     const motivationFull = document.getElementById('motivationFull');
     const dashboardLayout = document.getElementById('dashboardLayout');
 
-    // If the full dashboard is already shown (mini view not active), open dashboard instead
+    // If the full dashboard is already shown, open dashboard instead
     if (dashboardLayout && dashboardLayout.style.display !== 'none') {
         showDashboard();
         return;
     }
 
-    // Keep the Motivation Wall visible and overlay bottom trays
+    // Show the Motivation Wall and open bottom trays with animation
     if (motivationFull) {
         motivationFull.style.display = 'flex';
+        showBottomTrays();
     }
-
-    showBottomTrays();
 }
 
 function showBottomTrays() {
-    // Ensure calendar and todo rendered
-    const calendar = document.querySelector('.calendar-panel');
-    const todo = document.querySelector('.todo-panel');
-    if (!calendar || !todo) {
-        console.warn('Calendar or Todo panels not found');
-        return;
-    }
-
-    // Show motivation wall if hidden
     const motivationFull = document.getElementById('motivationFull');
-    if (motivationFull) {
-        motivationFull.style.display = 'flex';
-    }
-
-    // Position panels as fixed overlays at bottom
-    calendar.style.position = 'fixed';
-    todo.style.position = 'fixed';
-    calendar.style.zIndex = '70';
-    todo.style.zIndex = '70';
+    const motivationCard = motivationFull.querySelector('.motivation-card');
+    const questionSection = motivationFull.querySelector('.question-section');
     
-    // Add tray classes for fixed-position styling
-    calendar.classList.add('tray', 'tray-left');
-    todo.classList.add('tray', 'tray-right');
+    if (!motivationCard || !questionSection) return;
 
-    // Ensure internal wrappers scroll
-    const calWrap = calendar.querySelector('.calendar-wrapper') || calendar;
-    const todoWrap = todo.querySelector('.todo-wrapper') || todo;
-    calWrap.style.overflowY = 'auto';
-    todoWrap.style.overflowY = 'auto';
+    // Minimize the motivation card with animation
+    motivationCard.classList.add('minimized');
+    motivationFull.classList.add('trays-active');
 
-    // Add close buttons if missing
-    if (!calendar.querySelector('.tray-close')) {
-        const btn = document.createElement('button');
-        btn.className = 'tray-close';
-        btn.textContent = '✕';
-        btn.addEventListener('click', hideBottomTrays);
-        calendar.querySelector('.panel-header').appendChild(btn);
+    // Check if panels container already exists
+    let panelsContainer = motivationFull.querySelector('.panels-container');
+    if (!panelsContainer) {
+        // Create panels container
+        panelsContainer = document.createElement('div');
+        panelsContainer.className = 'panels-container';
+        
+        // Get calendar and todo from dashboard layout
+        const calendar = document.querySelector('.calendar-panel');
+        const todo = document.querySelector('.todo-panel');
+        
+        if (calendar && todo) {
+            // Clone and move them into the panels container
+            const calendarClone = calendar.cloneNode(true);
+            const todoClone = todo.cloneNode(true);
+            
+            calendarClone.classList.add('in-tray');
+            todoClone.classList.add('in-tray');
+            
+            panelsContainer.appendChild(calendarClone);
+            panelsContainer.appendChild(todoClone);
+            
+            // Add close buttons
+            const calHeader = calendarClone.querySelector('.panel-header');
+            const todoHeader = todoClone.querySelector('.panel-header');
+            
+            if (calHeader) {
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'tray-close';
+                closeBtn.textContent = '✕';
+                closeBtn.addEventListener('click', hideBottomTrays);
+                calHeader.appendChild(closeBtn);
+            }
+            
+            if (todoHeader) {
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'tray-close';
+                closeBtn.textContent = '✕';
+                closeBtn.addEventListener('click', hideBottomTrays);
+                todoHeader.appendChild(closeBtn);
+            }
+        }
+        
+        motivationFull.appendChild(panelsContainer);
     }
-    if (!todo.querySelector('.tray-close')) {
-        const btn = document.createElement('button');
-        btn.className = 'tray-close';
-        btn.textContent = '✕';
-        btn.addEventListener('click', hideBottomTrays);
-        todo.querySelector('.panel-header').appendChild(btn);
-    }
-
-    // Slightly reduce motivation card so trays fit
-    const motivationCard = document.querySelector('.motivation-card');
-    if (motivationCard) {
-        motivationCard.style.maxHeight = '320px';
-        motivationCard.style.overflow = 'hidden';
-    }
+    
+    // Trigger animation
+    setTimeout(() => {
+        panelsContainer.classList.add('visible');
+    }, 10);
 }
 
 function hideBottomTrays() {
-    const calendar = document.querySelector('.calendar-panel');
-    const todo = document.querySelector('.todo-panel');
-    if (!calendar || !todo) return;
+    const motivationFull = document.getElementById('motivationFull');
+    const motivationCard = motivationFull.querySelector('.motivation-card');
+    const panelsContainer = motivationFull.querySelector('.panels-container');
     
-    // Remove from overlay positioning
-    calendar.style.position = '';
-    todo.style.position = '';
-    calendar.style.zIndex = '';
-    todo.style.zIndex = '';
+    if (!motivationCard || !panelsContainer) return;
+
+    // Remove animation and visibility
+    panelsContainer.classList.remove('visible');
     
-    // Remove tray classes
-    calendar.classList.remove('tray', 'tray-left');
-    todo.classList.remove('tray', 'tray-right');
-
-    const calWrap = calendar.querySelector('.calendar-wrapper') || calendar;
-    const todoWrap = todo.querySelector('.todo-wrapper') || todo;
-    calWrap.style.overflowY = '';
-    todoWrap.style.overflowY = '';
-
-    // Remove tray-close buttons
-    calendar.querySelectorAll('.tray-close').forEach(n => n.remove());
-    todo.querySelectorAll('.tray-close').forEach(n => n.remove());
-
-    // Restore motivation card
-    const motivationCard = document.querySelector('.motivation-card');
-    if (motivationCard) {
-        motivationCard.style.maxHeight = '';
-        motivationCard.style.overflow = '';
-    }
+    // After animation completes, remove the container
+    setTimeout(() => {
+        panelsContainer.remove();
+        motivationCard.classList.remove('minimized');
+        motivationFull.classList.remove('trays-active');
+    }, 400);
 }
 
 // ==================== Calendar Functions ====================

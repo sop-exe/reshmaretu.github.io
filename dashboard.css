@@ -133,6 +133,23 @@ body {
     flex-direction: column;
     background: linear-gradient(135deg, #f5f9fc 0%, #eef5fb 100%);
     overflow: hidden;
+    gap: 0;
+}
+
+.main-content.trays-open {
+    gap: 0;
+}
+
+.main-content.trays-open .motivation-full {
+    flex: 0 0 auto;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.main-content.trays-open .dashboard-layout {
+    flex: 1;
+    display: flex !important;
+    overflow: hidden;
 }
 
 /* ==================== Motivation Full View ==================== */
@@ -142,6 +159,8 @@ body {
     height: 100%;
     padding: 32px 40px;
     gap: 24px;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .motivation-header {
@@ -217,6 +236,30 @@ body {
     margin: 0 auto 18px auto;
     position: relative;
     max-height: 460px;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, padding 0.4s ease, gap 0.4s ease;
+}
+
+.motivation-card.minimized {
+    max-height: 100px;
+    opacity: 0.85;
+    gap: 8px;
+    padding: 20px 24px;
+}
+
+.motivation-card.minimized .large-icon {
+    display: none;
+}
+
+.motivation-card.minimized .motivation-quote {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.1;
+    max-height: 32px;
+    overflow: hidden;
+}
+
+.motivation-card.minimized .quote-author {
+    font-size: 11px;
 }
 
 .large-icon {
@@ -252,6 +295,13 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 28px;
+    transition: gap 0.4s ease;
+    flex: 0 0 auto;
+    z-index: 10;
+}
+
+.motivation-full.trays-active .question-section {
+    gap: 16px;
 }
 
 .question-section h3 {
@@ -297,6 +347,57 @@ body {
     border-color: #d1d5db;
 }
 
+/* Pop-up animation for panels */
+@keyframes slideUpAndPop {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.panels-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.panels-container.visible {
+    opacity: 1;
+    pointer-events: auto;
+    animation: slideUpAndPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.calendar-panel.in-tray,
+.todo-panel.in-tray {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: static !important;
+    height: auto;
+    width: auto !important;
+    z-index: auto !important;
+}
+
+.calendar-panel.in-tray .calendar-wrapper,
+.todo-panel.in-tray .todo-wrapper {
+    overflow-y: auto;
+    flex: 1;
+}
+
 /* Bottom trays for calendar and todo when opened from motivation full */
 .tray {
     position: fixed;
@@ -339,10 +440,12 @@ body {
 
 /* ==================== Dashboard Layout ==================== */
 .dashboard-layout {
-    display: flex;
+    display: none;
     flex-direction: column;
     height: 100%;
     overflow: hidden;
+    background: white;
+    border-top: 1px solid #e5e7eb;
 }
 
 .motivation-header-mini {
@@ -423,8 +526,8 @@ body {
 .content-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    padding: 20px 40px;
+    gap: 0;
+    padding: 0;
     flex: 1;
     overflow: hidden;
 }
@@ -432,21 +535,22 @@ body {
 /* ==================== Calendar Panel ==================== */
 .calendar-panel {
     background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 0;
+    padding: 16px;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    border-right: 1px solid #e5e7eb;
 }
 
 .panel-header {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: none;
 }
 
 .panel-icon {
@@ -593,9 +697,9 @@ body {
 /* ==================== To-Do Panel ==================== */
 .todo-panel {
     background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 0;
+    padding: 16px;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -605,9 +709,9 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: none;
 }
 
 .add-btn {
