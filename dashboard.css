@@ -1,0 +1,680 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f5f9fc;
+    color: #1f2937;
+}
+
+/* ==================== App Container ==================== */
+.app-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ==================== Sidebar ==================== */
+.sidebar {
+    width: 280px;
+    background: white;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    margin-bottom: 32px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: #059669;
+    margin-bottom: 4px;
+}
+
+.tagline {
+    font-size: 13px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.nav-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.nav-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #9ca3af;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-link {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.nav-link.active {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 10px;
+}
+
+.profile-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-info h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.profile-info p {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* ==================== Main Content ==================== */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #f5f9fc 0%, #eef5fb 100%);
+    overflow: hidden;
+}
+
+/* ==================== Motivation Full View ==================== */
+.motivation-full {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 32px 40px;
+    gap: 24px;
+}
+
+.motivation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon-circle {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.header-text h2 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #10b981 0%, #0891b2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.refresh-btn {
+    background: white;
+    border: 1px solid #e5e7eb;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.motivation-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+    flex: 1;
+    justify-content: center;
+}
+
+.large-icon {
+    font-size: 56px;
+    display: block;
+}
+
+.motivation-quote {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.4;
+}
+
+.quote-author {
+    font-size: 14px;
+    color: #0891b2;
+    font-weight: 500;
+}
+
+.question-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.question-section h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.button-group {
+    display: flex;
+    gap: 16px;
+}
+
+.btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-yes {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.btn-yes:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-no {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-no:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+}
+
+/* ==================== Dashboard Layout ==================== */
+.dashboard-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.motivation-header-mini {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    gap: 12px;
+}
+
+.mini-header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon-circle-small {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.motivation-header-mini h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.refresh-btn-small {
+    background: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 6px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.refresh-btn-small:hover {
+    opacity: 1;
+}
+
+.question-section-dashboard {
+    padding: 20px 40px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5e7eb;
+    gap: 20px;
+}
+
+.question-section-dashboard h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.question-section-dashboard .button-group {
+    flex-shrink: 0;
+}
+
+.question-section-dashboard .btn {
+    padding: 10px 22px;
+    font-size: 14px;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 20px 40px;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ==================== Calendar Panel ==================== */
+.calendar-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.panel-icon {
+    font-size: 20px;
+}
+
+.panel-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.calendar-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.month-btn {
+    background: #f3f4f6;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    color: #0891b2;
+    font-weight: 600;
+}
+
+.month-btn:hover {
+    background: #0891b2;
+    color: white;
+}
+
+.month-display {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    min-width: 100px;
+    text-align: center;
+}
+
+.calendar-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.calendar-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.calendar-wrapper::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 10px;
+}
+
+.calendar-wrapper::-webkit-scrollbar-thumb {
+    background: #0891b2;
+    border-radius: 10px;
+}
+
+.calendar-grid {
+    display: grid;
+    gap: 8px;
+}
+
+.calendar-month {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.calendar-weekday {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    padding: 4px;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    background: #f9fafb;
+    color: #6b7280;
+    transition: all 0.2s ease;
+}
+
+.calendar-day:hover {
+    background: #eff6ff;
+    color: #0891b2;
+}
+
+.calendar-day.other-month {
+    color: #d1d5db;
+    cursor: default;
+}
+
+.calendar-day.today {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0891b2 100%);
+    color: white;
+    font-weight: 600;
+}
+
+.full-calendar-link {
+    text-align: center;
+    color: #0ea5e9;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 12px;
+    transition: color 0.2s ease;
+}
+
+.full-calendar-link:hover {
+    color: #0891b2;
+}
+
+/* ==================== To-Do Panel ==================== */
+.todo-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.todo-panel .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.add-btn {
+    margin-left: auto;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.add-btn:hover {
+    transform: scale(1.1);
+}
+
+.todo-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.todo-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.todo-wrapper::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 10px;
+}
+
+.todo-wrapper::-webkit-scrollbar-thumb {
+    background: #0891b2;
+    border-radius: 10px;
+}
+
+.todo-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.todo-item:hover {
+    background: #f3f4f6;
+}
+
+.todo-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #10b981;
+    border-radius: 4px;
+}
+
+.todo-item span {
+    color: #4b5563;
+    font-size: 14px;
+    flex: 1;
+}
+
+.todo-item input[type="checkbox"]:checked + span {
+    color: #9ca3af;
+    text-decoration: line-through;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 1200px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .question-section-dashboard {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .question-section-dashboard .button-group {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .motivation-full {
+        padding: 20px;
+        gap: 16px;
+    }
+
+    .motivation-card {
+        padding: 20px;
+        gap: 16px;
+    }
+
+    .question-section h3 {
+        font-size: 18px;
+    }
+
+    .content-grid {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+}

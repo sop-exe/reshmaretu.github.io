@@ -285,7 +285,7 @@
 
         .setting-btn:hover {
             background-color: #0d2c1f;
-            transform: translateY(-2px);	
+            transform: translateY(-2px); 	
         }
 
         .setting-value {

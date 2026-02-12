@@ -1,193 +1,151 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyBuddy</title>
-    <link rel="stylesheet" href="studbud.css">
+    <link rel="stylesheet" href="dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Ephesis&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="maincontainer">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <img src="images.png" alt="logo">
-            <h2>StudyBuddy</h2>
-        </div>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">StudyBuddy</h1>
+                <p class="tagline">Stay motivated & productive</p>
+            </div>
 
-        <ul class="sidebar-links">
-            <h4>
-                <span>Main Menu</span>
-                <div class="menu-separator"></div>
-            </h4>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h4 class="nav-title">MAIN MENU</h4>
+                    <ul class="nav-links">
+                        <li><a href="#" class="nav-link active">📊 Dashboard</a></li>
+                        <li><a href="#" class="nav-link">📅 Calendar</a></li>
+                        <li><a href="#" class="nav-link">⏱️ Pomodoro Timer</a></li>
+                    </ul>
+                </div>
 
-            <div class="toastBox"></div>
+                <div class="nav-section">
+                    <h4 class="nav-title">ACCOUNT</h4>
+                    <ul class="nav-links">
+                        <li><a href="#" class="nav-link">👤 Profile</a></li>
+                        <li><a href="#" class="nav-link">⚙️ Settings</a></li>
+                        <li><a href="#" class="nav-link">🚪 Logout</a></li>
+                    </ul>
+                </div>
+            </nav>
 
-            <li>
-                <a href="index.html">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    Dashboard
-                </a>
-            </li>
-        
-            <li>
-                <a href="todo.html">
-                    <span class="material-symbols-outlined">calendar_check</span>
-                    Cal-Do
-                </a>
-            </li>
-            <li>
-                <a href="pomodoro.html">
-                    <span class="material-symbols-outlined">timer</span>
-                    Pomodoro Timer
-                </a>
-            </li>
-
-            <h4>
-                <span>Account</span>
-                <div class="menu-separator"></div>
-            </h4>
-            <li>
-                <a href="#">
-                    <span class="material-symbols-outlined" onClick="showToast()">person</span>
-                    Profile
-                </a>
-            </li>
-
-            <li>
-                <a href="#">
-                    <span class="material-symbols-outlined" onClick="showToast()">settings</span>
-                    Settings
-                </a>
-            </li>
-
-            <li>
-                <a href="#">
-                    <span class="material-symbols-outlined" onClick="showToast()">logout</span>
-                    Logout
-                </a>
-            </li>
-            <div id="toast" class="toast">Coming soon!</div>
-        </ul>
-
-        <div class="user-account">
             <div class="user-profile">
-                <img src="bee.jpg" alt="profile-img">
-                <div class="user-detail">
-                    <h3>Sia Pineda</h3>
-                    <span>Web Developer</span>
+                <img src="bee.jpg" alt="Profile" class="profile-img">
+                <div class="profile-info">
+                    <h3>Laevatain</h3>
+                    <p>Web Developer</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- Motivation Wall (Full State) -->
+            <div class="motivation-full" id="motivationFull">
+                <div class="motivation-header">
+                    <div class="header-left">
+                        <span class="icon-circle">✨</span>
+                        <div class="header-text">
+                            <h2>Motivation Wall</h2>
+                            <p class="subtitle">Get inspired daily</p>
+                        </div>
+                    </div>
+                    <button class="refresh-btn" id="refreshBtn">🔄 Refresh</button>
+                </div>
+
+                <div class="motivation-card">
+                    <span class="large-icon">✨</span>
+                    <blockquote class="motivation-quote" id="motivationQuote">
+                        "What lies behind us and what lies before us are tiny matters compared to what lies within us."
+                    </blockquote>
+                    <p class="quote-author" id="quoteAuthor">— Ralph Waldo Emerson</p>
+                </div>
+
+                <div class="question-section">
+                    <h3 id="motivationQuestion">Ready for a challenge?</h3>
+                    <div class="button-group">
+                        <button class="btn btn-yes" id="yesBtn">Yes! 💪</button>
+                        <button class="btn btn-no" id="noBtn">Not Yet 😴</button>
+                    </div>
                 </div>
             </div>
 
-        </div>
-    </aside>
-
-    <!---Calendar--->
-
-    <div class="studybuddy-container">
-        <main class="calendar">
-            <header class="calendar__header">
-                <div class="calendar__navigation">
-                    <button class="nav-btn" id="prev-month">
-                        <span class="material-symbols-outlined">chevron_left</span>
-                    </button>
-                    <h1 id="calendar-title">Month</h1>
-                    <button class="nav-btn" id="next-month">
-                        <span class="material-symbols-outlined">chevron_right</span>
-                    </button>
+            <!-- Dashboard (Hidden initially) -->
+            <div class="dashboard-layout" id="dashboardLayout" style="display: none;">
+                <!-- Motivation Header (Minimized) -->
+                <div class="motivation-header-mini">
+                    <div class="mini-header-content">
+                        <span class="icon-circle-small">✨</span>
+                        <h3>Motivation Wall</h3>
+                    </div>
+                    <button class="refresh-btn-small" id="refreshBtnMini">🔄</button>
                 </div>
-                <span class="calendar__underline"></span>
-            </header>
 
-            <section class="calendar__grid" id="calendar-grid"></section>
-        </main>
+                <!-- Question Section -->
+                <div class="question-section-dashboard">
+                    <h3 id="motivationQuestionSmall">Ready to make today count?</h3>
+                    <div class="button-group">
+                        <button class="btn btn-yes" id="yesBtnSmall">Yes! 💪</button>
+                        <button class="btn btn-no" id="noBtnSmall">Not Yet 😴</button>
+                    </div>
+                </div>
 
-        <!---------------------------------------------------------To-Do--->
-
-        <div class="feature-row">
-            <div class="feature-box activity-panel">
-                <h2>Dues for <span id="selected-date">Today</span></h2>
-                <ul id="activity-list"></ul>
-            </div>
-
-            <div class="feature-box todo-panel">
-                <header class="todo-header">
-                    <h2>To-Do</h2>
-                    <div class="todo-underline"></div>
-                </header>
-
-                <div class="todo-body">
-                    <form id="todo-form" class="todo-form" aria-label="Add new task">
-                        <input id="todo-title" type="text" placeholder="Task title" required autocomplete="off">
-                        <input id="todo-time" type="time" aria-label="time (optional)">
-                        <button type="submit" class="todo-add">Add</button>
-                        
-                      <div class="todo-actions">
-                        <button class="todo-btn delete">🗑️</button>
+                <!-- Calendar & To-Do Grid -->
+                <div class="content-grid">
+                    <!-- Calendar -->
+                    <div class="calendar-panel">
+                        <div class="panel-header">
+                            <span class="panel-icon">📅</span>
+                            <h3>Calendar</h3>
                         </div>
-                    </form>
-
-                    
-
-                    <div class="todo-table">
-                        <div class="todo-table-head">
-                            <span class="col-title">TITLE</span>
-                            <span class="col-time">TIME</span>
-
+                        <div class="calendar-controls">
+                            <button class="month-btn" id="prevMonthBtn">‹</button>
+                            <span class="month-display" id="monthDisplay">February 2026</span>
+                            <button class="month-btn" id="nextMonthBtn">›</button>
                         </div>
-
-                        <ul id="todo-list" class="todo-list" aria-live="polite"></ul>
-
+                        <div class="calendar-wrapper">
+                            <div class="calendar-grid" id="calendarGrid"></div>
+                        </div>
+                        <a href="#" class="full-calendar-link">full calendar</a>
                     </div>
 
+                    <!-- To-Do -->
+                    <div class="todo-panel">
+                        <div class="panel-header">
+                            <span class="panel-icon">✓</span>
+                            <h3>To-do</h3>
+                            <button class="add-btn" id="addTodoBtn">+</button>
+                        </div>
+                        <div class="todo-wrapper">
+                            <ul class="todo-list" id="todoList">
+                                <li class="todo-item">
+                                    <input type="checkbox" class="todo-checkbox">
+                                    <span>Set profile description</span>
+                                </li>
+                                <li class="todo-item">
+                                    <input type="checkbox" class="todo-checkbox">
+                                    <span>Review study materials</span>
+                                </li>
+                                <li class="todo-item">
+                                    <input type="checkbox" class="todo-checkbox">
+                                    <span>Complete assignments</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
-
-    <!---------------------------------------------------------Pomodoro--->
-
-    <div class="timer-container">
-        <h1>POMODORO</h1>
-        <div class="pomodoro-timer">
-            <div class="timer-settings">
-            <button class="setting-btn" id="pomoBtn">Pomodoro</button>
-            <button class="setting-btn" id="sbBtn">Short Break</button>
-            <button class="setting-btn" id="lbBtn">Long Break</button>
-        </div>
-
-        <div class="timer-status" id="timerStatus">Ready to focus?</div>
-        <div class="timer-display" id="timerDisplay">25:00</div>
-
-        <div class="timer-controls">
-            <button class="timer-btn" id="startBtn">Start</button>
-            <button class="timer-btn" id="pauseBtn" disabled>Pause</button>
-        </div>
-
-        <div class="notifications-panel" style="margin-top: 12px; display:flex; align-items:center; gap:10px;">
-            <button class="timer-btn" id="enableNotificationsBtn" type="button">Enable Notifications</button>
-            <span id="notifStatus" style="font-size: 14px; opacity:.85;"></span>
-        </div>
-
-        <audio id="alarm">
-        <source src="alarm.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-
-    <audio id="buttonclick">
-        <source src="button-click.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-        </div>
-    </div>
-</div>
-    <!-- Optional: Inject your public VAPID key here to avoid editing JS files -->
-    <!-- Replace BELOW with your real public key after running the keygen script -->
-    <script>
-    window.STUDYBUDDY_PUBLIC_VAPID = 'BAfPh8NNHEQqL3AKFphPyELgAnGfkqHZKM6yApA5UcpmrCCuC5U8BNggtA0b-GzlAT5LfgZYfMEPfb5fhPfS9Do';
-    </script>
-    <script src="studbud.js"></script>
 </body>
 </html>
