@@ -25,7 +25,7 @@
                     <h4 class="nav-title">MAIN MENU</h4>
                     <ul class="nav-links">
                         <li><a href="#" class="nav-link active">📊 Dashboard</a></li>
-                        <li><a href="#" class="nav-link">📅 Calendar</a></li>
+                        <li><a href="calendar.html" class="nav-link">📅 Calendar</a></li>
                         <li><a href="#" class="nav-link">⏱️ Pomodoro Timer</a></li>
                     </ul>
                 </div>
@@ -69,6 +69,9 @@
                         "What lies behind us and what lies before us are tiny matters compared to what lies within us."
                     </blockquote>
                     <p class="quote-author" id="quoteAuthor">— Ralph Waldo Emerson</p>
+                    <div class="motivation-loader" aria-hidden="true">
+                        <div class="bar"></div>
+                    </div>
                 </div>
 
                 <div class="question-section">
@@ -116,15 +119,17 @@
                         <div class="calendar-wrapper">
                             <div class="calendar-grid" id="calendarGrid"></div>
                         </div>
-                        <a href="#" class="full-calendar-link">full calendar</a>
+                        <a href="calendar.html" class="full-calendar-link">full calendar</a>
                     </div>
 
                     <!-- To-Do -->
-                    <div class="todo-panel">
-                        <div class="panel-header">
+                    <div class="todo-panel" id="todoPanel">
+                        <div class="panel-header" style="display:flex;align-items:center;gap:12px;">
                             <span class="panel-icon">✓</span>
-                            <h3>To-do</h3>
-                            <button class="add-btn" id="addTodoBtn">+</button>
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <h3 style="margin:0;">To-do</h3>
+                                <button class="add-btn" id="addTodoBtn">+</button>
+                            </div>
                         </div>
                         <div class="todo-wrapper">
                             <ul class="todo-list" id="todoList">

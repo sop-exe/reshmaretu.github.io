@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy — Calendar</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="calendar.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">StudyBuddy</h1>
+                <p class="tagline">Stay motivated & productive</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h4 class="nav-title">MAIN MENU</h4>
+                    <ul class="nav-links">
+                        <li><a href="index.html" class="nav-link">📊 Dashboard</a></li>
+                        <li><a href="calendar.html" class="nav-link active">📅 Calendar</a></li>
+                        <li><a href="pomodoro.html" class="nav-link">⏱️ Pomodoro Timer</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h4 class="nav-title">ACCOUNT</h4>
+                    <ul class="nav-links">
+                        <li><a href="#" class="nav-link">👤 Profile</a></li>
+                        <li><a href="#" class="nav-link">⚙️ Settings</a></li>
+                        <li><a href="#" class="nav-link">🚪 Logout</a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="user-profile">
+                <img src="bee.jpg" alt="Profile" class="profile-img">
+                <div class="profile-info">
+                    <h3>Laevatain</h3>
+                    <p>Web Developer</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="motivation-header">
+                <div class="header-left">
+                    <span class="icon-circle">📅</span>
+                    <div class="header-text">
+                        <h2>Calendar</h2>
+                        <p class="subtitle">Plan your wins — Schedule & prioritize</p>
+                    </div>
+                </div>
+                <div class="calendar-controls-top">
+                    <div style="min-width:200px"></div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <button id="todayBtn" class="month-btn">Today</button>
+                        <button id="prevMonthBtnTop" class="month-btn">‹</button>
+                        <button id="nextMonthBtnTop" class="month-btn">›</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calendar-page-container">
+                <div class="calendar-wrapper-large">
+                    <div class="month-display-large" id="monthDisplayLarge">February 2026</div>
+                    <div id="calendarGridLarge" class="calendar-grid-large"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Task modal -->
+    <div id="taskModal" class="task-modal" aria-hidden="true">
+        <div class="task-card">
+            <h3>Add Task</h3>
+            <label>Title<input id="taskTitle" type="text" placeholder="Task name"></label>
+            <label>Description (optional)<textarea id="taskDesc" rows="3" placeholder="Details..."></textarea></label>
+            <div class="datetime-row">
+                <label>Start<input id="taskStart" type="datetime-local"></label>
+                <label>End<input id="taskEnd" type="datetime-local"></label>
+            </div>
+            <div class="task-actions">
+                <button id="cancelTask" class="btn btn-no">Cancel</button>
+                <button id="confirmTask" class="btn btn-yes">Add Task</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="calendar.js"></script>
+</body>
+</html>

@@ -55,6 +55,56 @@ const motivationPresets = {
     ]
 };
 
+// Preset labels for the two action buttons. Right-click (context menu)
+// cycles through the available presets without changing primary click behavior.
+const buttonPresets = {
+    yes: [
+        "Yes! 💪",
+        "Absolutely ✅",
+        "I'm in! 🚀",
+        "Let's go! 🔥",
+        "Count me in 🙌",
+        "Heck yes! 🎯",
+        "Bring it on! 💥",
+        "All set ✅",
+        "Game on! 🎮",
+        "On it! ⚡",
+        "Let's do this! 🔥",
+        "Forward! ⤴️",
+        "Ready! 👍",
+        "Yes, let's! ✨",
+        "Let's begin 🏁"
+    ],
+    no: [
+        "Not Yet 😴",
+        "Maybe later ⏳",
+        "Need prep ⚙️",
+        "Not today 💤",
+        "In a bit",
+        "I'll pass for now 🙃",
+        "Need more coffee ☕",
+        "Not ready ❌",
+        "Give me time 🕰️",
+        "Later please 🙏",
+        "I'll prep first 🛠️",
+        "Not quite yet 🤏",
+        "Give me a moment",
+        "Try later 🔁"
+    ]
+};
+
+// Track current index for each button's preset
+let _yesPresetIndex = 0;
+let _noPresetIndex = 0;
+
+// Rotation interval (seconds) used for quote changes and loader animation
+const ROTATION_INTERVAL = 12;
+
+// Small dashboard calendar current state
+let smallCalYear = null;
+let smallCalMonth = null;
+
+
 // ==================== Initialize ====================
 document.addEventListener('DOMContentLoaded', function() {
     initializeMotivation();
@@ -65,6 +115,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ==================== Motivation Functions ====================
 function initializeMotivation() {
+    // Randomize button presets once per page load
+    _yesPresetIndex = Math.floor(Math.random() * buttonPresets.yes.length);
+    _noPresetIndex = Math.floor(Math.random() * buttonPresets.no.length);
+
     updateMotivationContent();
     
     document.getElementById('yesBtn').addEventListener('click', handleAffirmationClick);
@@ -82,6 +136,55 @@ function initializeMotivation() {
     document.getElementById('refreshBtnMini').addEventListener('click', () => {
         updateMotivationContent();
     });
+
+    // Initialize button texts from presets
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const yesBtnSmall = document.getElementById('yesBtnSmall');
+    const noBtnSmall = document.getElementById('noBtnSmall');
+
+    if (yesBtn) yesBtn.textContent = buttonPresets.yes[_yesPresetIndex];
+    if (noBtn) noBtn.textContent = buttonPresets.no[_noPresetIndex];
+    if (yesBtnSmall) yesBtnSmall.textContent = buttonPresets.yes[_yesPresetIndex];
+    if (noBtnSmall) noBtnSmall.textContent = buttonPresets.no[_noPresetIndex];
+
+    // Start or reset loader animation to match rotation interval
+    restartLoader();
+
+    // Right-click to cycle through presets (keeps normal click behavior intact)
+    const cyclePreset = (btn, list, indexRefName) => {
+        btn.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (indexRefName === 'yes') {
+                _yesPresetIndex = (_yesPresetIndex + 1) % list.length;
+                btn.textContent = list[_yesPresetIndex];
+            } else {
+                _noPresetIndex = (_noPresetIndex + 1) % list.length;
+                btn.textContent = list[_noPresetIndex];
+            }
+        });
+    };
+
+    if (yesBtn) cyclePreset(yesBtn, buttonPresets.yes, 'yes');
+    if (noBtn) cyclePreset(noBtn, buttonPresets.no, 'no');
+    if (yesBtnSmall) cyclePreset(yesBtnSmall, buttonPresets.yes, 'yes');
+    if (noBtnSmall) cyclePreset(noBtnSmall, buttonPresets.no, 'no');
+}
+
+// Restart the loader animation (reset and reapply) so it syncs with content changes
+function restartLoader() {
+    const loaderBar = document.querySelector('.motivation-loader .bar');
+    if (!loaderBar) return;
+
+    // Apply correct duration
+    loaderBar.style.animationDuration = ROTATION_INTERVAL + 's';
+
+    // Reset animation by toggling the element
+    loaderBar.style.animation = 'none';
+    // Force reflow
+    // eslint-disable-next-line no-unused-expressions
+    loaderBar.offsetHeight;
+    loaderBar.style.animation = '';
 }
 
 function updateMotivationContent() {
@@ -95,6 +198,9 @@ function updateMotivationContent() {
     document.getElementById('quoteAuthor').textContent = `— ${quote.author}`;
     document.getElementById('motivationQuestion').textContent = motivationPresets.questions[questionIndex];
     document.getElementById('motivationQuestionSmall').textContent = motivationPresets.questionsSmall[questionSmallIndex];
+
+    // Restart loader animation when content updates
+    restartLoader();
 }
 
 function startRotation() {
@@ -103,7 +209,7 @@ function startRotation() {
         if (motivationFull.style.display !== 'none') {
             updateMotivationContent();
         }
-    }, 12000); // Change every 12 seconds
+    }, ROTATION_INTERVAL * 1000); // Change every ROTATION_INTERVAL seconds
 }
 
 function showDashboard() {
@@ -219,29 +325,39 @@ function hideBottomTrays() {
 // ==================== Calendar Functions ====================
 function initializeCalendar() {
     const now = new Date();
-    renderCalendar(now.getFullYear(), now.getMonth());
-    
-    document.getElementById('prevMonthBtn').addEventListener('click', () => {
-        const display = document.getElementById('monthDisplay').textContent;
-        const [month, year] = display.split(' ');
-        const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                        'July', 'August', 'September', 'October', 'November', 'December'];
-        const monthIndex = months.indexOf(month);
-        const prevMonth = monthIndex === 0 ? 11 : monthIndex - 1;
-        const prevYear = monthIndex === 0 ? parseInt(year) - 1 : parseInt(year);
-        renderCalendar(prevYear, prevMonth);
-    });
-    
-    document.getElementById('nextMonthBtn').addEventListener('click', () => {
-        const display = document.getElementById('monthDisplay').textContent;
-        const [month, year] = display.split(' ');
-        const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                        'July', 'August', 'September', 'October', 'November', 'December'];
-        const monthIndex = months.indexOf(month);
-        const nextMonth = monthIndex === 11 ? 0 : monthIndex + 1;
-        const nextYear = monthIndex === 11 ? parseInt(year) + 1 : parseInt(year);
-        renderCalendar(nextYear, nextMonth);
-    });
+    smallCalYear = now.getFullYear();
+    smallCalMonth = now.getMonth();
+    renderCalendar(smallCalYear, smallCalMonth);
+
+    const prevBtn = document.getElementById('prevMonthBtn');
+    const nextBtn = document.getElementById('nextMonthBtn');
+    const animateSmall = (direction) => {
+        const daysEl = document.querySelector('.calendar-days');
+        if (!daysEl) return;
+        // apply out animation
+        daysEl.classList.remove('anim-in-left','anim-in-right');
+        daysEl.classList.add(direction === 'prev' ? 'anim-out-right' : 'anim-out-left');
+        setTimeout(()=>{
+            // update state
+            if (direction === 'prev') {
+                smallCalMonth -= 1;
+                if (smallCalMonth < 0) { smallCalMonth = 11; smallCalYear -= 1; }
+            } else {
+                smallCalMonth += 1;
+                if (smallCalMonth > 11) { smallCalMonth = 0; smallCalYear += 1; }
+            }
+            renderCalendar(smallCalYear, smallCalMonth, direction);
+            // play in animation
+            const newDays = document.querySelector('.calendar-days');
+            if (newDays) {
+                newDays.classList.remove('anim-out-left','anim-out-right');
+                newDays.classList.add(direction === 'prev' ? 'anim-in-left' : 'anim-in-right');
+            }
+        }, 260);
+    };
+
+    if (prevBtn) prevBtn.addEventListener('click', () => animateSmall('prev'));
+    if (nextBtn) nextBtn.addEventListener('click', () => animateSmall('next'));
 }
 
 function renderCalendar(year, month) {
@@ -293,12 +409,29 @@ function renderCalendar(year, month) {
     for (let i = 1; i <= lastDate; i++) {
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
-        dayEl.textContent = i;
+        // wrap number so we can bold when tasks exist
+        const num = document.createElement('div');
+        num.className = 'calendar-day-num';
+        num.textContent = i;
+        dayEl.appendChild(num);
+        // check for tasks in storage
+        const yearStr = String(year).padStart(4,'0');
+        const monthStr = String(month+1).padStart(2,'0');
+        const dayStr = String(i).padStart(2,'0');
+        const dateKey = `${yearStr}-${monthStr}-${dayStr}`;
+        try {
+            const raw = localStorage.getItem('calendarTasks');
+            const obj = raw ? JSON.parse(raw) : {};
+            const tasks = obj[dateKey] || [];
+            if (tasks.length > 0) {
+                dayEl.classList.add('has-task');
+            }
+        } catch (e) {}
         
         if (isCurrentMonth && i === todayDate) {
             dayEl.classList.add('today');
         }
-        
+
         daysDiv.appendChild(dayEl);
     }
     
@@ -318,13 +451,41 @@ function renderCalendar(year, month) {
 
 // ==================== Todo Functions ====================
 function initializeTodo() {
-    document.getElementById('addTodoBtn').addEventListener('click', addTodo);
-    
-    document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            // Toggle check
+    // Redirect the add button to the full calendar page and open add modal there
+    const addBtn = document.getElementById('addTodoBtn');
+    if (addBtn) {
+        addBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Navigate to calendar page and open add modal for today
+            window.location.assign('calendar.html#add');
         });
-    });
+    }
+    
+    // Render stored todos (if any)
+    const todoListEl = document.getElementById('todoList');
+    if (todoListEl) {
+        todoListEl.innerHTML = '';
+        const raw = localStorage.getItem('todoItems');
+        const items = raw ? JSON.parse(raw) : [];
+        items.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'todo-item';
+            li.innerHTML = `\n                <input type="checkbox" class="todo-checkbox" ${item.completed ? 'checked' : ''}>\n                <span>${item.title}${item.date ? ' — ' + item.date : ''}</span>\n            `;
+            todoListEl.appendChild(li);
+        });
+
+        // Bind new check handlers
+        todoListEl.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Update storage
+                const raw2 = localStorage.getItem('todoItems');
+                const items2 = raw2 ? JSON.parse(raw2) : [];
+                const idx = Array.from(todoListEl.querySelectorAll('.todo-item')).indexOf(this.parentElement);
+                if (items2[idx]) items2[idx].completed = this.checked;
+                localStorage.setItem('todoItems', JSON.stringify(items2));
+            });
+        });
+    }
 }
 
 function addTodo() {
