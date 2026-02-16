@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy — Focus Mode</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="focus.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="focus-mode-body">
+    <div class="focus-overlay" id="focusOverlay">
+        <header class="focus-header">
+            <div class="focus-task-info">
+                <h1 id="focusTaskTitle">📘 Biology — Photosynthesis</h1>
+                <div class="focus-meta">
+                    <span class="focus-mode-badge" id="focusModeBadge">🍅 Focus Session (1/4)</span>
+                    <span class="focus-timer" id="focusTimer">25:00</span>
+                </div>
+            </div>
+            <div class="focus-status">
+                <span>🧠 Focus: High</span>
+                <span>👥 Buddy: <span id="buddyStatus">Active</span></span>
+            </div>
+        </header>
+
+        <main class="focus-main">
+            <div class="focus-content-area">
+                <p class="focus-instruction">Study your material here</p>
+            </div>
+            <div class="focus-actions">
+                <button class="btn btn-done" id="btnDone">✔ Done</button>
+                <button class="btn btn-confusing" id="btnConfusing">🤔 Confusing</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Distraction Lock Modal -->
+    <div id="distractionLockModal" class="modal distraction-lock-modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>Leaving already?</h3>
+            <p id="distractionLockMessage">You have 6 mins left.</p>
+            <div class="distraction-actions">
+                <button class="btn btn-yes" id="stayBtn">Stay</button>
+                <button class="btn btn-no" id="exitBtn">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Break Transition Modal -->
+    <div id="breakModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>🎉 Focus complete!</h3>
+            <p>Time for a break ☕</p>
+            <p class="break-timer" id="breakTimer">5:00</p>
+            <button class="btn btn-yes" id="startBreakBtn">Start Break</button>
+        </div>
+    </div>
+
+    <!-- Session Complete Modal -->
+    <div id="sessionCompleteModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>🔥 Great work!</h3>
+            <p id="sessionCompleteMessage">You completed 4 sessions.</p>
+            <p class="long-break-hint">Take a longer break (15–30 mins)</p>
+            <button class="btn btn-yes" id="finishSessionBtn">Done</button>
+        </div>
+    </div>
+
+    <script src="stats.js"></script>
+    <script src="focus.js"></script>
+</body>
+</html>

@@ -271,10 +271,24 @@ function renderTodoList() {
                 <span class="time">${ev.time || ""}</span>
             </div>
             <div class="todo-actions">
+                <button class="todo-btn finish" data-index="${index}">${ev.done ? '✔ Finished' : 'Mark as finished'}</button>
                 <button class="todo-btn delete" data-index="${index}">🗑️</button>
             </div>
         `;
         todoList.appendChild(li);
+    });
+
+    document.querySelectorAll('.finish').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const i = e.target.dataset.index;
+            const idx = parseInt(i, 10);
+            if (!events[idx]) return;
+            if (events[idx].done) return;
+            if (!confirm('Mark this task as finished?')) return;
+            events[idx].done = true;
+            saveEvents();
+            renderTodoList();
+        });
     });
 
     document.querySelectorAll(".delete").forEach((btn) =>

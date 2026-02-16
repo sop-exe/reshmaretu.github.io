@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy — Ghost Mode</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="ghost.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="ghost-mode-body">
+    <div class="ghost-overlay" id="ghostOverlay">
+        <header class="ghost-header">
+            <button class="ghost-leave-btn" id="ghostLeaveBtn">← Leave</button>
+            <div class="ghost-focus-display">
+                🧠 Focus: <span id="ghostFocusBar" class="focus-bar">█████░░░</span> <span id="ghostFocusLabel">Moderate</span>
+            </div>
+            <label class="ghost-music-toggle">
+                <input type="checkbox" id="ghostMusicToggle" checked> Music
+            </label>
+        </header>
+
+        <main class="ghost-main">
+            <h1 id="ghostTaskTitle" class="ghost-task-title">📘 Task</h1>
+            <div class="ghost-meta">
+                <span id="ghostModeBadge">⏱ Single Focus</span>
+                <span id="ghostTimer" class="ghost-timer">10:00</span>
+            </div>
+            <button class="ghost-test-btn" id="ghostTestBtn" title="Test: set timer to 10 seconds">⏱ Test (10s)</button>
+
+            <div class="ghost-content-area">
+                <p class="ghost-instruction">Study your material here</p>
+            </div>
+            <div class="ghost-actions">
+                <button class="btn btn-done" id="btnFinished">Finished Task</button>
+                <button class="btn btn-confusing" id="btnConfusing">This is Confusing</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Leave confirmation (Ghost Mode = combined distraction lock) -->
+    <div id="leaveConfirmModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>Leaving already?</h3>
+            <p id="leaveConfirmMessage">You have time left. Leaving will count as an early exit and affect your Focus & Burnout.</p>
+            <div class="distraction-actions">
+                <button class="btn btn-yes" id="stayBtn">Stay</button>
+                <button class="btn btn-no" id="confirmLeaveBtn">Leave</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Finished confirmation -->
+    <div id="finishedConfirmModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>Are you sure?</h3>
+            <p>Mark this task as finished?</p>
+            <div class="distraction-actions">
+                <button class="btn btn-no" id="cancelFinishedBtn">Cancel</button>
+                <button class="btn btn-yes" id="confirmFinishedBtn">Yes, Finished</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Break Modal -->
+    <div id="breakModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>🎉 Focus complete!</h3>
+            <p>Time for a break ☕</p>
+            <p class="break-timer" id="breakTimer">5:00</p>
+            <button class="btn btn-yes" id="startBreakBtn">Start Break</button>
+        </div>
+    </div>
+
+    <!-- Session Complete Modal -->
+    <div id="sessionCompleteModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>🔥 Great work!</h3>
+            <p id="sessionCompleteMessage">You completed all sessions.</p>
+            <button class="btn btn-yes" id="finishSessionBtn">Done</button>
+        </div>
+    </div>
+
+    <!-- Music placeholder: add your audio file at /audio/ghost-mode-music.mp3 (or .ogg) for testing -->
+    <audio id="ghostMusic" loop preload="auto">
+        <source src="audio/ghost-mode-music.mp3" type="audio/mpeg">
+        <source src="audio/ghost-mode-music.ogg" type="audio/ogg">
+    </audio>
+
+    <script src="stats.js"></script>
+    <script src="ghost.js"></script>
+</body>
+</html>

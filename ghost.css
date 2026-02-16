@@ -1,0 +1,163 @@
+/* Ghost Mode - Full Screen, no sidebar */
+
+.ghost-mode-body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.ghost-overlay {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.ghost-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.ghost-leave-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #94a3b8;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.ghost-leave-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.ghost-focus-display {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.ghost-focus-display .focus-bar {
+    font-family: monospace;
+    letter-spacing: 1px;
+    color: #10b981;
+}
+
+.ghost-music-toggle {
+    font-size: 14px;
+    color: #94a3b8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ghost-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.ghost-task-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 12px 0;
+}
+
+.ghost-meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+.ghost-meta span {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.ghost-timer {
+    font-size: 36px;
+    font-weight: 700;
+    color: #10b981;
+    font-variant-numeric: tabular-nums;
+}
+
+.ghost-test-btn {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid #10b981;
+    color: #10b981;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+
+.ghost-test-btn:hover {
+    background: rgba(16, 185, 129, 0.3);
+}
+
+.ghost-content-area {
+    max-width: 640px;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.ghost-instruction {
+    font-size: 18px;
+    color: #94a3b8;
+}
+
+.ghost-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.ghost-actions .btn-done {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.ghost-actions .btn-done:hover {
+    transform: translateY(-2px);
+}
+
+.ghost-actions .btn-confusing {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ghost-actions .btn-confusing:hover {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+.distraction-actions { display: flex; gap: 12px; margin-top: 8px; }
+.distraction-actions .btn { flex: 1; }
+.break-timer { font-size: 28px; font-weight: 700; color: #10b981; }

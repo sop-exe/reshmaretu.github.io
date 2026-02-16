@@ -51,8 +51,8 @@
 
             <li>
                 <a href="index.html">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    Dashboard
+                    <span class="material-symbols-outlined">home</span>
+                    Home
                 </a>
             </li>
             <li>
@@ -91,6 +91,12 @@
                 <a href="#">
                     <span class="material-symbols-outlined" onClick="showToast()">logout</span>
                     Logout
+                </a>
+            </li>
+            <li>
+                <a href="#" id="resetAllBtn">
+                    <span class="material-symbols-outlined">refresh</span>
+                    Reset Data
                 </a>
             </li>
             <div id="toast" class="toast">Coming soon!</div>
@@ -178,6 +184,16 @@
         </div>
     </div>
 <script src="todo.js"></script>
+<script>
+document.getElementById('resetAllBtn')?.addEventListener('click', function(e){
+    e.preventDefault();
+    if (!confirm('Reset all StudyBuddy data (stats, tasks, sessions)? This cannot be undone.')) return;
+    const keys = ['user_stats','todoItems','calendarTasks','events','focusHistory','burnoutHistory','ghostSession','study_sessions'];
+    keys.forEach(k => localStorage.removeItem(k));
+    alert('Data reset. Refreshing.');
+    location.reload();
+});
+</script>
 </body>
 
 </html>

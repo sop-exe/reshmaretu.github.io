@@ -24,9 +24,10 @@
                 <div class="nav-section">
                     <h4 class="nav-title">MAIN MENU</h4>
                     <ul class="nav-links">
-                        <li><a href="#" class="nav-link active">📊 Dashboard</a></li>
+                        <li><a href="index.html" class="nav-link active">🏠 Home</a></li>
                         <li><a href="calendar.html" class="nav-link">📅 Calendar</a></li>
-                        <li><a href="#" class="nav-link">⏱️ Pomodoro Timer</a></li>
+                        <li><a href="ghost.html" class="nav-link">👻 Ghost Mode</a></li>
+                        <li><a href="insights.html" class="nav-link">📊 Insights</a></li>
                     </ul>
                 </div>
 
@@ -36,6 +37,7 @@
                         <li><a href="#" class="nav-link">👤 Profile</a></li>
                         <li><a href="#" class="nav-link">⚙️ Settings</a></li>
                         <li><a href="#" class="nav-link">🚪 Logout</a></li>
+                        <li><a href="#" id="resetAllBtn" class="nav-link">♻️ Reset Data</a></li>
                     </ul>
                 </div>
             </nav>
@@ -74,33 +76,35 @@
                     </div>
                 </div>
 
-                <div class="question-section">
-                    <h3 id="motivationQuestion">Ready for a challenge?</h3>
-                    <div class="button-group">
-                        <button class="btn btn-yes" id="yesBtn">Yes! 💪</button>
-                        <button class="btn btn-no" id="noBtn">Not Yet 😴</button>
-                    </div>
-                </div>
-            </div>
+                <!-- State Bar -->
+               <div class="state-bar">
+    <span class="state-item">
+        <span class="state-label">🧠 Focus:</span>
+        <span class="focus-bar">█████░░░</span>
+        <span id="focusLabel">Moderate</span>
+        <span id="focusTrend" class="trend-indicator"></span>
+    </span>
+    <span class="state-item">
+        <span id="moodLabel">😄 Good</span>
+    </span>
+    <span class="state-item">
+        ⚠️ Burnout: <span id="burnoutLabel">Low</span>
+        <span id="burnoutTrend" class="trend-indicator"></span>
+    </span>
+</div>
 
-            <!-- Dashboard (Hidden initially) -->
-            <div class="dashboard-layout" id="dashboardLayout" style="display: none;">
-                <!-- Motivation Header (Minimized) -->
-                <div class="motivation-header-mini">
-                    <div class="mini-header-content">
-                        <span class="icon-circle-small">✨</span>
-                        <h3>Motivation Wall</h3>
-                    </div>
-                    <button class="refresh-btn-small" id="refreshBtnMini">🔄</button>
+                <!-- Smart Start (Main Action) -->
+                <div class="smart-start-section">
+                    <button class="btn btn-start-now" id="startSessionBtn">
+                        🎯 Start Study Session <span class="btn-arrow">⚡</span>
+                    </button>
                 </div>
 
-                <!-- Question Section -->
-                <div class="question-section-dashboard">
-                    <h3 id="motivationQuestionSmall">Ready to make today count?</h3>
-                    <div class="button-group">
-                        <button class="btn btn-yes" id="yesBtnSmall">Yes! 💪</button>
-                        <button class="btn btn-no" id="noBtnSmall">Not Yet 😴</button>
-                    </div>
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="quick-action-btn" id="quickChallengeBtn">⚡ Quick Challenge</button>
+                    <button class="quick-action-btn" id="clearBrainBtn">🧼 Clear Brain</button>
+                    <button class="quick-action-btn" id="studyBuddyBtn">👥 Study Buddy</button>
                 </div>
 
                 <!-- Calendar & To-Do Grid -->
@@ -126,25 +130,23 @@
                     <div class="todo-panel" id="todoPanel">
                         <div class="panel-header" style="display:flex;align-items:center;gap:12px;">
                             <span class="panel-icon">✓</span>
-                            <div style="display:flex;align-items:center;gap:12px;">
-                                <h3 style="margin:0;">To-do</h3>
-                                <button class="add-btn" id="addTodoBtn">+</button>
-                            </div>
+                            <h3 style="margin:0;">To-do</h3>
+                            <button class="add-btn" id="addTodoBtn" title="Add task">+</button>
                         </div>
                         <div class="todo-wrapper">
                             <ul class="todo-list" id="todoList">
-                                <li class="todo-item">
-                                    <input type="checkbox" class="todo-checkbox">
-                                    <span>Set profile description</span>
-                                </li>
-                                <li class="todo-item">
-                                    <input type="checkbox" class="todo-checkbox">
-                                    <span>Review study materials</span>
-                                </li>
-                                <li class="todo-item">
-                                    <input type="checkbox" class="todo-checkbox">
-                                    <span>Complete assignments</span>
-                                </li>
+                                    <li class="todo-item">
+                                        <div class="todo-left"><span class="todo-title">Set profile description</span></div>
+                                        <div class="todo-actions"><button class="btn-finish">Mark as finished</button><button class="btn-delete">🗑️</button></div>
+                                    </li>
+                                    <li class="todo-item">
+                                        <div class="todo-left"><span class="todo-title">Review study materials</span></div>
+                                        <div class="todo-actions"><button class="btn-finish">Mark as finished</button><button class="btn-delete">🗑️</button></div>
+                                    </li>
+                                    <li class="todo-item">
+                                        <div class="todo-left"><span class="todo-title">Complete assignments</span></div>
+                                        <div class="todo-actions"><button class="btn-finish">Mark as finished</button><button class="btn-delete">🗑️</button></div>
+                                    </li>
                             </ul>
                         </div>
                     </div>
@@ -152,6 +154,114 @@
             </div>
         </main>
     </div>
+
+    <!-- Start Session Modal -->
+    <div id="startSessionModal" class="modal" aria-hidden="true">
+        <div class="modal-card modal-start modal-wide">
+            <h3>🎯 Start Study Session</h3>
+            <div id="smartStartNoTasks" class="smart-start-empty" style="display:none;">
+                <p>No tasks yet. Add a task to get started.</p>
+                <button class="btn btn-yes" id="addTaskFromSmartStart">Add Task</button>
+            </div>
+            <div id="smartStartTaskList" class="smart-start-tasks">
+                <p class="modal-label">Choose a task:</p>
+                <div id="taskListContainer" class="task-list"></div>
+            </div>
+            <div id="smartStartTimerStep" class="smart-start-timer-step" style="display:none;">
+                <p class="modal-task-chosen" id="chosenTaskDisplay"></p>
+                <div class="modal-session-type">
+                    <label><input type="radio" name="sessionType" value="single" checked> Single Focus</label>
+                    <label><input type="radio" name="sessionType" value="pomodoro"> Pomodoro</label>
+                </div>
+              <div id="singleSettings" class="timer-settings-row" style="display:none;">
+    <div class="single-duration-options">
+        <label><input type="radio" name="singleDuration" value="10" checked> Short (10 min)</label>
+        <label><input type="radio" name="singleDuration" value="20"> Average (20 min)</label>
+        <label><input type="radio" name="singleDuration" value="30"> Deep (30 min)</label>
+    </div>
+    <p id="singleSuggestion" class="single-suggestion"></p>
+</div>
+               <div id="pomodoroSettings" class="timer-settings-row" style="display:none;">
+    <label>Focus (min) <input type="number" id="pomoFocus" min="10" max="60" value="25"></label>
+    <label>Break (min) <input type="number" id="pomoBreak" min="1" max="15" value="5"></label>
+    <label>Long break (min) <input type="number" id="pomoLongBreak" min="5" max="45" value="20"></label>
+    <label>Sessions before long break <input type="number" id="pomoSessions" min="2" max="8" value="4"></label>
+    <p id="pomoHint" style="font-size:0.9rem; color:#059669; margin-top:8px;"></p>
+</div>
+                <div class="modal-options">
+                    <label><input type="radio" name="startMode" value="ghost" checked> Ghost Mode</label>
+                    <label><input type="radio" name="startMode" value="soundscape"> Soundscape <span class="placeholder-tag">placeholder</span></label>
+                </div>
+                <button class="btn btn-yes modal-confirm" id="startGhostBtn">Start Session</button>
+            </div>
+            <button class="btn btn-no modal-back" id="smartStartBack" style="display:none;">← Back</button>
+        </div>
+    </div>
+
+    <!-- Add Task Modal (dashboard) -->
+    <div id="addTaskModal" class="modal task-modal" aria-hidden="true">
+        <div class="modal-card task-card">
+            <h3>Add Task</h3>
+            <label>Title<input id="addTaskTitle" type="text" placeholder="Task name"></label>
+            <label>Description (optional)<textarea id="addTaskDesc" rows="3" placeholder="Details..."></textarea></label>
+            <div class="datetime-row">
+                <label>Start<input id="addTaskStart" type="datetime-local"></label>
+                <label>End<input id="addTaskEnd" type="datetime-local"></label>
+            </div>
+            <div class="task-actions">
+                <button id="cancelAddTask" class="btn btn-no">Cancel</button>
+                <button id="confirmAddTask" class="btn btn-yes">Add Task</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Brain Fog Cleaner Modal -->
+    <div id="brainFogModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>🧼 Clear Your Mind</h3>
+            <p class="modal-step">Step 1: Breathe</p>
+            <div class="breathe-placeholder"></div>
+            <p class="modal-step">Step 2: What's bothering you?</p>
+            <textarea id="brainFogInput" placeholder="Type here..."></textarea>
+            <p class="modal-step">Step 3: Try this</p>
+            <p class="modal-suggestion">"Read 1 paragraph only."</p>
+            <button class="btn btn-yes" id="brainFogStartTask">Start 2-min Task</button>
+        </div>
+    </div>
+
+    <!-- Quick Challenge Modal -->
+    <div id="quickChallengeModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>⚡ 60-Second Challenge</h3>
+            <p class="challenge-question" id="challengeQuestion">Ready?</p>
+            <p class="challenge-timer" id="challengeTimer">1:00</p>
+            <button class="btn btn-yes" id="challengeStartBtn">Start</button>
+        </div>
+    </div>
+
+    <!-- Mood Check Modal (once per day) -->
+    <div id="moodModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>How are you feeling today?</h3>
+            <div class="mood-buttons">
+                <button class="mood-btn" data-value="3">😄 Good</button>
+                <button class="mood-btn" data-value="2">😐 Okay</button>
+                <button class="mood-btn" data-value="1">😞 Bad</button>
+            </div>
+            <label>Note (optional) <input type="text" id="moodNote" placeholder="e.g. tired because of exam"></label>
+        </div>
+    </div>
+
+    <!-- Study Buddy Modal -->
+    <div id="studyBuddyModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+            <h3>👥 Study Buddy</h3>
+            <p>Match with someone studying now?</p>
+            <button class="btn btn-yes" id="findBuddyBtn">Find Buddy</button>
+        </div>
+    </div>
+
+    <script src="stats.js"></script>
     <script src="dashboard.js"></script>
 </body>
 </html>

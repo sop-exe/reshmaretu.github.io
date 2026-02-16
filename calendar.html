@@ -19,9 +19,10 @@
                 <div class="nav-section">
                     <h4 class="nav-title">MAIN MENU</h4>
                     <ul class="nav-links">
-                        <li><a href="index.html" class="nav-link">📊 Dashboard</a></li>
+                        <li><a href="index.html" class="nav-link">🏠 Home</a></li>
                         <li><a href="calendar.html" class="nav-link active">📅 Calendar</a></li>
-                        <li><a href="pomodoro.html" class="nav-link">⏱️ Pomodoro Timer</a></li>
+                        <li><a href="ghost.html" class="nav-link">👻 Ghost Mode</a></li>
+                        <li><a href="insights.html" class="nav-link">📊 Insights</a></li>
                     </ul>
                 </div>
 
@@ -31,6 +32,7 @@
                         <li><a href="#" class="nav-link">👤 Profile</a></li>
                         <li><a href="#" class="nav-link">⚙️ Settings</a></li>
                         <li><a href="#" class="nav-link">🚪 Logout</a></li>
+                        <li><a href="#" id="resetAllBtn" class="nav-link">♻️ Reset Data</a></li>
                     </ul>
                 </div>
             </nav>
@@ -86,6 +88,16 @@
                 <button id="cancelTask" class="btn btn-no">Cancel</button>
                 <button id="confirmTask" class="btn btn-yes">Add Task</button>
             </div>
+                <script>
+                document.getElementById('resetAllBtn')?.addEventListener('click', function(e){
+                    e.preventDefault();
+                    if (!confirm('Reset all StudyBuddy data (stats, tasks, sessions)? This cannot be undone.')) return;
+                    const keys = ['user_stats','todoItems','calendarTasks','events','focusHistory','burnoutHistory','ghostSession','study_sessions'];
+                    keys.forEach(k => localStorage.removeItem(k));
+                    alert('Data reset. Refreshing.');
+                    location.reload();
+                });
+                </script>
         </div>
     </div>
 

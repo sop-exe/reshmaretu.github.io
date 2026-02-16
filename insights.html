@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy — Insights</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="insights.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">StudyBuddy</h1>
+                <p class="tagline">Stay motivated & productive</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h4 class="nav-title">MAIN MENU</h4>
+                    <ul class="nav-links">
+                        <li><a href="index.html" class="nav-link">🏠 Home</a></li>
+                        <li><a href="calendar.html" class="nav-link">📅 Calendar</a></li>
+                        <li><a href="ghost.html" class="nav-link">👻 Ghost Mode</a></li>
+                        <li><a href="insights.html" class="nav-link active">📊 Insights</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h4 class="nav-title">ACCOUNT</h4>
+                    <ul class="nav-links">
+                        <li><a href="#" class="nav-link">👤 Profile</a></li>
+                        <li><a href="#" class="nav-link">⚙️ Settings</a></li>
+                        <li><a href="#" class="nav-link">🚪 Logout</a></li>
+                        <li><a href="#" id="resetAllBtn" class="nav-link">♻️ Reset Data</a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="user-profile">
+                <img src="bee.jpg" alt="Profile" class="profile-img">
+                <div class="profile-info">
+                    <h3>Laevatain</h3>
+                    <p>Web Developer</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content insights-main">
+            <div class="insights-header">
+                <div class="header-left">
+                    <span class="icon-circle">📊</span>
+                    <div class="header-text">
+                        <h2>Insights</h2>
+                        <p class="subtitle">Your study intelligence — Improve over time</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insights-content">
+                <section class="insight-card personality-card">
+                    <h3>🧠 Study Personality Analyzer</h3>
+                    <div class="personality-result">
+                        <p class="personality-type">Your Study Type: <strong id="personalityType">Sprinter</strong></p>
+                        <p>You focus best in:</p>
+                        <ul>
+                            <li>✔ Short sessions (10–20 min)</li>
+                            <li>✔ Active recall</li>
+                        </ul>
+                        <p class="personality-suggestion">Suggestion: Use Quick Challenge daily</p>
+                    </div>
+                </section>
+
+                <section class="insight-card confusion-card">
+                    <h3>🔴 Confusion Tracker</h3>
+                    <p>Topics you struggle with:</p>
+                    <ul class="confusion-list" id="confusionList">
+                        <!-- Filled by JS -->
+                    </ul>
+                    <button class="btn btn-yes" id="reviewConfusionBtn">Review Now</button>
+                </section>
+
+                <section class="insight-card progress-card">
+                    <h3>📈 Progress</h3>
+                    <p>This week:</p>
+                    <ul>
+                        <li>✔ <span id="sessionsCount">5</span> sessions</li>
+                        <li>✔ <span id="accuracyPercent">70</span>% accuracy</li>
+                    </ul>
+                    <p class="burnout-note">⚠️ High fatigue on Thursday</p>
+                </section>
+
+                <section class="insight-card mood-card">
+    <h3>😊 Recent Moods</h3>
+    <ul id="moodHistoryList" class="mood-history-list"></ul>
+</section>
+            </div>
+        </main>
+    </div>
+
+    <script src="stats.js"></script>
+    <script src="insights.js"></script>
+    <script>
+    document.getElementById('resetAllBtn')?.addEventListener('click', function(e){
+        e.preventDefault();
+        if (!confirm('Reset all StudyBuddy data (stats, tasks, sessions)? This cannot be undone.')) return;
+        const keys = ['user_stats','todoItems','calendarTasks','events','focusHistory','burnoutHistory','ghostSession','study_sessions'];
+        keys.forEach(k => localStorage.removeItem(k));
+        alert('Data reset. Refreshing.');
+        location.reload();
+    });
+    </script>
+</body>
+</html>

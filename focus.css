@@ -1,0 +1,123 @@
+/* Focus Mode - Full Screen */
+
+.focus-mode-body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.focus-overlay {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.focus-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 32px;
+    background: rgba(15, 23, 42, 0.9);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.focus-task-info h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 8px 0;
+}
+
+.focus-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.focus-mode-badge {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.focus-timer {
+    font-size: 28px;
+    font-weight: 700;
+    color: #10b981;
+    font-variant-numeric: tabular-nums;
+}
+
+.focus-status {
+    display: flex;
+    gap: 20px;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.focus-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.focus-content-area {
+    max-width: 640px;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.focus-instruction {
+    font-size: 18px;
+    color: #94a3b8;
+}
+
+.focus-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.focus-actions .btn-done {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.focus-actions .btn-done:hover {
+    transform: translateY(-2px);
+}
+
+.focus-actions .btn-confusing {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.focus-actions .btn-confusing:hover {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+/* Distraction Lock */
+.distraction-lock-modal .modal-card { max-width: 360px; }
+.distraction-actions { display: flex; gap: 12px; margin-top: 8px; }
+.distraction-actions .btn { flex: 1; }
+
+.break-timer { font-size: 28px; font-weight: 700; color: #10b981; }
+.long-break-hint { font-size: 14px; color: #6b7280; margin: 8px 0; }
