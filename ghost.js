@@ -95,7 +95,11 @@
 
     function onPhaseComplete() {
         if (currentMode === 'focus') {
-            if (typeof recordSessionCompleted === 'function') recordSessionCompleted();
+            // Record completed session with duration
+            if (typeof recordSessionCompleted === 'function') {
+                const duration = isPomodoro ? focusMin : singleDuration;
+                recordSessionCompleted(duration);
+            }
             if (isPomodoro) {
                 pomodoroCount++;
                 if (pomodoroCount >= sessionsBeforeLong) {
@@ -151,15 +155,23 @@
     });
 
     confirmFinishedBtn?.addEventListener('click', () => {
-        finishedModal.classList.remove('show');
-        finishedModal.setAttribute('aria-hidden', 'true');
-        if (typeof recordSessionCompleted === 'function') recordSessionCompleted();
-        if (isPomodoro && currentMode === 'focus') {
-            onPhaseComplete();
-        } else {
-            redirectHome();
-        }
-    });
+    const params = JSON.parse(sessionStorage.getItem('ghostSession') || '{}');
+    const taskName = params.taskName;
+
+    // Update global todo list
+    let tasks = JSON.parse(localStorage.getItem('todoItems') || '[]');
+    const taskIndex = tasks.findIndex(t => t.title === taskName);
+    
+    if (taskIndex !== -1) {
+        tasks[taskIndex].completed = true;
+        localStorage.setItem('todoItems', JSON.stringify(tasks));
+    }
+
+    // Record stats and exit
+    if (typeof recordSessionComplete === 'function') recordSessionComplete();
+    sessionStorage.removeItem('ghostSession'); 
+    redirectHome();
+});
 
     btnConfusing?.addEventListener('click', () => {
         if (typeof recordConfusion === 'function') recordConfusion();
