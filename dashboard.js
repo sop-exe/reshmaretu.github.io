@@ -206,7 +206,7 @@ function renderCalendar(year, month) {
 function initializeTodo() {
     const addBtn = document.getElementById('addTodoBtn');
     if (addBtn) {
-        addBtn.addEventListener('click', function(e) {
+        addBtn.addEventListener('click', (e) => {
             e.preventDefault();
             openAddTaskModal();
         });
@@ -215,29 +215,66 @@ function initializeTodo() {
     const todoListEl = document.getElementById('todoList');
     if (!todoListEl) return;
     todoListEl.innerHTML = '';
-    const raw = localStorage.getItem('todoItems');
-    const items = raw ? JSON.parse(raw) : [];
-    items.forEach((item, idx) => {
+    const items = JSON.parse(localStorage.getItem('todoItems') || '[]');
+    
+    // Auto-remove finished tasks after 6 hours
+    const now = Date.now();
+    const filteredItems = items.filter(item => {
+        if (item.completed && item.finishedAt) {
+            const hoursPassed = (now - item.finishedAt) / (1000 * 60 * 60);
+            return hoursPassed < 6;
+        }
+        return true;
+    });
+
+    if (filteredItems.length !== items.length) {
+        localStorage.setItem('todoItems', JSON.stringify(filteredItems));
+    }
+
+    filteredItems.forEach((item, idx) => {
         const li = document.createElement('li');
-        li.className = 'todo-item';
-        li.innerHTML = `\n                <div class="todo-left">\n                    <span class="todo-title">${item.title}</span>\n                    ${item.date ? '<span class="todo-date"> — ' + item.date + '</span>' : ''}\n                </div>\n                <div class="todo-actions">\n                    <button class="btn-finish">${item.completed ? '✔ Finished' : 'Mark as finished'}</button>\n                    <button class="btn-delete">🗑️</button>\n                </div>\n            `;
+        li.className = `todo-item ${item.completed ? 'is-completed' : ''}`;
+        li.innerHTML = `
+            <div class="todo-left">
+                <span class="todo-title">${item.title}</span>
+                ${item.date ? '<span class="todo-date"> — ' + item.date + '</span>' : ''}
+            </div>
+            <div class="todo-actions">
+                <button class="btn-finish">${item.completed ? '✔ Finished' : 'Mark as finished'}</button>
+                <button class="btn-delete">🗑️</button>
+            </div>
+        `;
         todoListEl.appendChild(li);
 
-        li.querySelector('.btn-finish').addEventListener('click', function() {
+        li.querySelector('.btn-finish').addEventListener('click', () => {
             if (item.completed) return;
-            const ok = confirm('Are you sure you want to mark this task as finished?');
-            if (!ok) return;
-            items[idx].completed = true;
-            localStorage.setItem('todoItems', JSON.stringify(items));
+            if (!confirm('Mark as finished?')) return;
+            
+            filteredItems[idx].completed = true;
+            filteredItems[idx].finishedAt = Date.now(); // For 6-hour auto-removal
+            localStorage.setItem('todoItems', JSON.stringify(filteredItems));
             initializeTodo();
         });
 
-        li.querySelector('.btn-delete').addEventListener('click', function() {
-            const ok = confirm('Delete this task?');
-            if (!ok) return;
-            items.splice(idx, 1);
-            localStorage.setItem('todoItems', JSON.stringify(items));
+        li.querySelector('.btn-delete').addEventListener('click', () => {
+            if (!confirm('Delete this task everywhere?')) return;
+            
+            const taskToDelete = filteredItems[idx];
+            
+            // 1. Remove from todoItems
+            filteredItems.splice(idx, 1);
+            localStorage.setItem('todoItems', JSON.stringify(filteredItems));
+
+            // 2. Remove from calendarTasks to sync Calendar Page and Smart Start
+            const calendarData = JSON.parse(localStorage.getItem('calendarTasks') || '{}');
+            if (taskToDelete.date && calendarData[taskToDelete.date]) {
+                calendarData[taskToDelete.date] = calendarData[taskToDelete.date].filter(t => t.title !== taskToDelete.title);
+                if (calendarData[taskToDelete.date].length === 0) delete calendarData[taskToDelete.date];
+                localStorage.setItem('calendarTasks', JSON.stringify(calendarData));
+            }
+
             initializeTodo();
+            if (typeof renderCalendar === 'function') renderCalendar(smallCalYear, smallCalMonth);
         });
     });
 }
@@ -414,43 +451,54 @@ function saveTaskFromAddModal(dateStr, task) {
 
 // ==================== Smart Start Helpers ====================
 function showStartModalTaskList() {
-    const startModal = document.getElementById('startSessionModal');
+    const container = document.getElementById('taskListContainer');
     const noTasks = document.getElementById('smartStartNoTasks');
     const taskList = document.getElementById('smartStartTaskList');
-    const timerStep = document.getElementById('smartStartTimerStep');
-    const backBtn = document.getElementById('smartStartBack');
-    const container = document.getElementById('taskListContainer');
-    const tasks = getAllCalendarTasks();
+    
+    // Use todoItems as the primary source for status tracking
+    const todoItems = JSON.parse(localStorage.getItem('todoItems') || '[]');
+
+    if (todoItems.length === 0) {
+        noTasks.style.display = 'block';
+        taskList.style.display = 'none';
+        return;
+    }
 
     noTasks.style.display = 'none';
     taskList.style.display = 'block';
-    timerStep.style.display = 'none';
-    backBtn.style.display = 'none';
+    container.innerHTML = '';
 
-    if (tasks.length === 0) {
-        noTasks.style.display = 'block';
-        taskList.style.display = 'none';
-    } else {
-        container.innerHTML = '';
-        tasks.forEach((t, i) => {
+    const pending = todoItems.filter(t => !t.completed);
+    const finished = todoItems.filter(t => t.completed);
+
+    const renderSection = (title, list, isFinished) => {
+        if (list.length === 0) return;
+        
+        const header = document.createElement('h4');
+        header.className = 'task-group-header';
+        header.textContent = title;
+        container.appendChild(header);
+
+        list.forEach((t) => {
             const div = document.createElement('div');
-            div.className = 'task-list-item';
-            div.dataset.index = i;
-            div.textContent = t.title + (t.date ? ' — ' + t.date : '');
+            div.className = `task-list-item ${isFinished ? 'task-done' : ''}`;
+            div.innerHTML = `<span>${t.title}</span> <small>${t.date || ''}</small>`;
+            
             div.addEventListener('click', () => {
-                container.querySelectorAll('.task-list-item').forEach(el => el.classList.remove('selected'));
-                div.classList.add('selected');
+                const startModal = document.getElementById('startSessionModal');
                 startModal._chosenTask = t;
                 document.getElementById('chosenTaskDisplay').textContent = '📘 ' + t.title;
                 document.getElementById('smartStartTaskList').style.display = 'none';
                 document.getElementById('smartStartTimerStep').style.display = 'block';
                 document.getElementById('smartStartBack').style.display = 'inline-block';
                 updateSingleSuggestion();
-                updatePomoHint();
             });
             container.appendChild(div);
         });
-    }
+    };
+
+    renderSection('📌 Active Tasks', pending, false);
+    renderSection('✅ Completed (Last 6h)', finished, true);
 }
 
 function updateSingleSuggestion() {
@@ -679,4 +727,47 @@ function resetAllData() {
     try { if (typeof renderCalendar === 'function') renderCalendar(smallCalYear, smallCalMonth); } catch(e) {}
     try { updateStateBar(); } catch(e) {}
     alert('All data reset.');
+}
+
+function deleteTask(taskId, taskTitle) {
+    // 1. Remove from To-Do Array
+    let todoItems = JSON.parse(localStorage.getItem('todoItems') || '[]');
+    todoItems = todoItems.filter(item => item.id !== taskId);
+    localStorage.setItem('todoItems', JSON.stringify(todoItems));
+
+    // 2. Sync with Calendar (Remove by Title/Date match)
+    const calendarData = JSON.parse(localStorage.getItem('calendarTasks') || '{}');
+    const today = new Date().toISOString().slice(0, 10);
+
+    if (calendarData[today]) {
+        calendarData[today] = calendarData[today].filter(t => t.title !== taskTitle);
+        if (calendarData[today].length === 0) delete calendarData[today];
+        localStorage.setItem('calendarTasks', JSON.stringify(calendarData));
+    }
+    
+    renderTodoUI(); // Refresh the list
+}
+
+function populateSmartStartTasks() {
+    const taskContainer = document.getElementById('smartStartTaskContainer'); 
+    const todoItems = JSON.parse(localStorage.getItem('todoItems') || '[]');
+    
+    const pendingTasks = todoItems.filter(t => !t.completed);
+    const finishedTasks = todoItems.filter(t => t.completed);
+
+    let html = `<h4>📌 Active Tasks</h4>`;
+    if (pendingTasks.length === 0) html += `<p class="empty-msg">No active tasks</p>`;
+    
+    pendingTasks.forEach(task => {
+        html += `<button class="task-opt" onclick="selectTask('${task.title}')">${task.title}</button>`;
+    });
+
+    if (finishedTasks.length > 0) {
+        html += `<h4 class="done-label">✅ Recently Finished</h4>`;
+        finishedTasks.forEach(task => {
+            html += `<button class="task-opt finished" onclick="selectTask('${task.title}')">${task.title}</button>`;
+        });
+    }
+
+    taskContainer.innerHTML = html;
 }
