@@ -159,6 +159,18 @@ const calendarLarge = (function(){
         const end = dateStr + 'T10:00';
         startInput.value = start;
         endInput.value = end;
+
+        // Reset validation
+if (calTitle) {
+    calTitle.value = '';
+    calTitleCount.textContent = '0';
+    calTitleError.style.display = 'none';
+    calConfirmBtn.disabled = true;
+}
+if (calDesc) {
+    calDesc.value = '';
+    calDescCount.textContent = '0';
+}
     }
 
     function closeModal(){
@@ -179,10 +191,44 @@ const calendarLarge = (function(){
             this.classList.add('active');
         });
     });
+    
+    // Character count and validation
+const calTitle = document.getElementById('taskTitle');
+const calDesc = document.getElementById('taskDesc');
+const calTitleCount = document.getElementById('taskTitleCount');
+const calDescCount = document.getElementById('taskDescCount');
+const calTitleError = document.getElementById('taskTitleError');
+const calConfirmBtn = document.getElementById('confirmTask');
 
+function validateCalendarTitle() {
+    const val = calTitle.value.trim();
+    const len = val.length;
+    calTitleCount.textContent = len;
+    if (len < 1 || len > 30) {
+        calTitleError.style.display = 'block';
+        calConfirmBtn.disabled = true;
+        return false;
+    } else {
+        calTitleError.style.display = 'none';
+        calConfirmBtn.disabled = false;
+        return true;
+    }
+}
+
+if (calTitle) {
+    calTitle.addEventListener('input', validateCalendarTitle);
+}
+if (calDesc) {
+    calDesc.addEventListener('input', () => {
+        calDescCount.textContent = calDesc.value.length;
+    });
+}
     confirmBtn.addEventListener('click', ()=>{
-        const title = titleInput.value.trim();
-        if (!title) return alert('Please enter a title');
+    const title = calTitle.value.trim();
+    if (!title || title.length < 1 || title.length > 30) {
+        calTitleError.style.display = 'block';
+        return;
+    }
 
         // Get selected load
         const activeLoadBtn = document.querySelector('.load-btn.active');

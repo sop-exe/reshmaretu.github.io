@@ -1387,3 +1387,23 @@ body {
     gap: 10px;
     width: 100%;                 /* added */
 }
+
+/* Character count and validation */
+.char-count {
+    font-size: 11px;
+    color: #9ca3af;
+    text-align: right;
+    margin-top: 2px;
+}
+.validation-error {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.validation-error {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 2px;
+    display: none; /* hidden by default */
+}

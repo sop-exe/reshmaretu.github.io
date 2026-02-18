@@ -293,3 +293,22 @@ function getRecommendedPomodoro(burnout, focus, load) {
 
     return { focusMin, breakMin, longBreakMin, sessions };
 }
+
+function recordEarlyExitWithDetails(plannedDuration, load) {
+    const stats = getStats();
+    applyBurnoutDecay(stats);
+    
+    // Load factor
+    let loadFactor = 1;
+    if (load === 'light') loadFactor = 0.5;
+    else if (load === 'heavy') loadFactor = 1.5;
+    
+    // Penalty based on planned duration (minutes)
+    const penalty = Math.max(1, Math.round(plannedDuration / 10 * loadFactor));
+    stats.burnoutScore = (stats.burnoutScore || 0) + penalty;
+    stats.lastBurnoutUpdate = new Date().toISOString().slice(0,10);
+    saveStats(stats);
+    
+    // Also increment exits for focus score
+    recordEarlyExit(); // original function that increments daily exits
+}

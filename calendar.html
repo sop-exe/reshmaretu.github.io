@@ -78,24 +78,28 @@
 <div id="taskModal" class="task-modal" aria-hidden="true">
     <div class="task-card">
         <h3>Add Task</h3>
-        <label>Title<input id="taskTitle" type="text" placeholder="Task name"></label>
-        <label>Description (optional)<textarea id="taskDesc" rows="3" placeholder="Details..."></textarea></label>
-        
-        <!-- Load selector -->
+        <label>Title
+            <input id="taskTitle" type="text" placeholder="Task name" maxlength="30">
+            <div class="char-count"><span id="taskTitleCount">0</span>/30</div>
+            <div id="taskTitleError" class="validation-error" style="color:#ef4444; font-size:12px; display:none;">Title must be between 1 and 30 characters.</div>
+        </label>
+        <label>Description (optional)
+            <textarea id="taskDesc" rows="3" placeholder="Details..." maxlength="100"></textarea>
+            <div class="char-count"><span id="taskDescCount">0</span>/100</div>
+        </label>
         <div class="load-selector">
             <span class="load-label">Load:</span>
             <button type="button" class="load-btn light" data-load="light">Light</button>
             <button type="button" class="load-btn medium active" data-load="medium">Medium</button>
             <button type="button" class="load-btn heavy" data-load="heavy">Heavy</button>
         </div>
-
         <div class="datetime-row">
             <label>Start<input id="taskStart" type="datetime-local"></label>
             <label>End<input id="taskEnd" type="datetime-local"></label>
         </div>
         <div class="task-actions">
             <button id="cancelTask" class="btn btn-no">Cancel</button>
-            <button id="confirmTask" class="btn btn-yes">Add Task</button>
+            <button id="confirmTask" class="btn btn-yes" disabled>Add Task</button>
         </div>
     </div>
 </div>

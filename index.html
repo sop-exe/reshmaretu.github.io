@@ -26,7 +26,7 @@
                     <ul class="nav-links">
                         <li><a href="index.html" class="nav-link active">🏠 Home</a></li>
                         <li><a href="calendar.html" class="nav-link">📅 Calendar</a></li>
-                        <li><a href="ghost.html" class="nav-link">👻 Ghost Mode</a></li>
+                        <li><a href="ghost.html" class="nav-link" id="sidebarGhostLink">👻 Ghost Mode</a></li>
                         <li><a href="insights.html" class="nav-link">📊 Insights</a></li>
                     </ul>
                 </div>
@@ -228,28 +228,35 @@
     </div>
 </div>
 
-    <!-- Add Task Modal (dashboard) -->
-    <div id="addTaskModal" class="modal task-modal" aria-hidden="true">
-        <div class="modal-card task-card">
-            <h3>Add Task</h3>
-            <label>Title<input id="addTaskTitle" type="text" placeholder="Task name"></label>
-            <label>Description (optional)<textarea id="addTaskDesc" rows="3" placeholder="Details..."></textarea></label>
-            <div class="load-selector">
-    <span class="load-label">Load:</span>
-    <button type="button" class="load-btn light" data-load="light">Light</button>
-    <button type="button" class="load-btn medium active" data-load="medium">Medium</button>
-    <button type="button" class="load-btn heavy" data-load="heavy">Heavy</button>
-</div>
-            <div class="datetime-row">
-                <label>Start<input id="addTaskStart" type="datetime-local"></label>
-                <label>End<input id="addTaskEnd" type="datetime-local"></label>
-            </div>
-            <div class="task-actions">
-                <button id="cancelAddTask" class="btn btn-no">Cancel</button>
-                <button id="confirmAddTask" class="btn btn-yes">Add Task</button>
-            </div>
+   <!-- Add Task Modal (dashboard) -->
+<div id="addTaskModal" class="modal task-modal" aria-hidden="true">
+    <div class="modal-card task-card">
+        <h3>Add Task</h3>
+        <label>Title
+    <input id="addTaskTitle" type="text" placeholder="Task name" maxlength="30">
+    <div class="char-count"><span id="addTaskTitleCount">0</span>/30</div>
+    <div id="addTaskTitleError" class="validation-error">Title must be between 1 and 30 characters.</div>
+</label>
+        <label>Description (optional)
+            <textarea id="addTaskDesc" rows="3" placeholder="Details..." maxlength="100"></textarea>
+            <div class="char-count"><span id="addTaskDescCount">0</span>/100</div>
+        </label>
+        <div class="load-selector">
+            <span class="load-label">Load:</span>
+            <button type="button" class="load-btn light" data-load="light">Light</button>
+            <button type="button" class="load-btn medium active" data-load="medium">Medium</button>
+            <button type="button" class="load-btn heavy" data-load="heavy">Heavy</button>
+        </div>
+        <div class="datetime-row">
+            <label>Start<input id="addTaskStart" type="datetime-local"></label>
+            <label>End<input id="addTaskEnd" type="datetime-local"></label>
+        </div>
+        <div class="task-actions">
+            <button id="cancelAddTask" class="btn btn-no">Cancel</button>
+            <button id="confirmAddTask" class="btn btn-yes" disabled>Add Task</button>
         </div>
     </div>
+</div>
 
     <!-- Brain Fog Cleaner Modal -->
     <div id="brainFogModal" class="modal" aria-hidden="true">
@@ -287,6 +294,18 @@
             <label>Note (optional) <input type="text" id="moodNote" placeholder="e.g. tired because of exam"></label>
         </div>
     </div>
+
+<!-- Ghost Mode Confirmation Modal -->
+<div id="ghostConfirmModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+        <h3>Ghost Mode</h3>
+        <p>Using Ghost Mode maximizes the screen. Are you ready to start a session?</p>
+        <div class="distraction-actions">
+            <button class="btn btn-no" id="ghostConfirmBack">Back</button>
+            <button class="btn btn-yes" id="ghostConfirmStart">Start</button>
+        </div>
+    </div>
+</div>
 
     <script src="stats.js"></script>
     <script src="dashboard.js"></script>

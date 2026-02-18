@@ -50,14 +50,36 @@ const ROTATION_INTERVAL = 12;
 let smallCalYear = null;
 let smallCalMonth = null;
 
+// Global references for add task modal validation
+let addTitle, addDesc, addTitleCount, addDescCount, addTitleError, confirmAddBtn;
+
 // ==================== Initialize ====================
 document.addEventListener('DOMContentLoaded', function() {
+    // Assign global validation elements
+    addTitle = document.getElementById('addTaskTitle');
+    addDesc = document.getElementById('addTaskDesc');
+    addTitleCount = document.getElementById('addTaskTitleCount');
+    addDescCount = document.getElementById('addTaskDescCount');
+    addTitleError = document.getElementById('addTaskTitleError');
+    confirmAddBtn = document.getElementById('confirmAddTask');
+
+    // Attach validation listeners
+    if (addTitle) {
+        addTitle.addEventListener('input', validateAddTaskTitle);
+    }
+    if (addDesc) {
+        addDesc.addEventListener('input', () => {
+            addDescCount.textContent = addDesc.value.length;
+        });
+    }
+
     initializeMotivation();
     initializeCalendar();
     initializeTodo();
     initializeModals();
     initializeStats();
     startRotation();
+
     document.getElementById('resetAllBtn')?.addEventListener('click', function() {
         const ok = confirm('Reset all StudyBuddy data (stats, tasks, sessions)? This cannot be undone.');
         if (!ok) return;
@@ -208,7 +230,7 @@ function initializeTodo() {
     if (addBtn) {
         addBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            openAddTaskModal(undefined, 'todo');   // source = 'todo'
+            openAddTaskModal(undefined, 'todo');
         });
     }
     
@@ -217,7 +239,6 @@ function initializeTodo() {
     todoListEl.innerHTML = '';
     const items = JSON.parse(localStorage.getItem('todoItems') || '[]');
     
-    // Auto-remove finished tasks after 6 hours
     const now = Date.now();
     const filteredItems = items.filter(item => {
         if (item.completed && item.finishedAt) {
@@ -257,7 +278,12 @@ function initializeTodo() {
         });
 
         li.querySelector('.btn-delete').addEventListener('click', () => {
-            if (!confirm('Delete this task everywhere?')) return;
+            const task = filteredItems[idx];
+            const isCompleted = task.completed;
+            const message = isCompleted 
+                ? 'Remove this completed task now?' 
+                : 'This task is not marked as finished yet. Remove now?';
+            if (!confirm(message)) return;
             
             const taskToDelete = filteredItems[idx];
             
@@ -309,7 +335,6 @@ function initializeStats() {
 
     updateStateBar();
 
-    // Click mood label to open modal ONLY if no mood today
     const moodLabelEl = document.getElementById('moodLabel');
     if (moodLabelEl && moodModal) {
         moodLabelEl.closest('.state-item')?.addEventListener('click', () => {
@@ -342,7 +367,7 @@ function updateStateBar() {
     const fl = document.getElementById('focusLabel');
     const ml = document.getElementById('moodLabel');
     const bl = document.getElementById('burnoutLabel');
-    // FIX: Show numeric scores
+
     if (fl) fl.textContent = focusLabel + ' (' + focusScore + ')';
     if (ml) {
         const moodEmoji = moodLabel === 'Good' ? '😄' : moodLabel === 'Okay' ? '😐' : moodLabel === 'Bad' ? '😞' : '';
@@ -361,7 +386,6 @@ function updateStateBar() {
         }
     }
 
-    // Update trend indicators
     try {
         const pushHistory = (key, value) => {
             const raw = localStorage.getItem(key);
@@ -396,7 +420,6 @@ function updateStateBar() {
     } catch (e) {}
 }
 
-// Listen to localStorage changes (using string literal to avoid STATS_KEY conflict)
 window.addEventListener('storage', (e) => {
     if (e.key === 'user_stats' || e.key === 'focusHistory' || e.key === 'burnoutHistory') {
         updateStateBar();
@@ -425,12 +448,23 @@ function openAddTaskModal(forDate, source = 'todo') {
 
     modal.dataset.source = source;
 
-    // Reset load selector to default (Medium)
     document.querySelectorAll('.load-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelector('.load-btn.medium')?.classList.add('active');
 
     modal.classList.add('show');
     modal.setAttribute('aria-hidden', 'false');
+
+    // Reset validation and show error immediately because field is empty
+    if (addTitle) {
+        addTitle.value = '';
+        addTitleCount.textContent = '0';
+        addTitleError.style.display = 'block'; // Show error immediately
+        confirmAddBtn.disabled = true;
+    }
+    if (addDesc) {
+        addDesc.value = '';
+        addDescCount.textContent = '0';
+    }
 }
 
 function closeAddTaskModal() {
@@ -440,7 +474,6 @@ function closeAddTaskModal() {
     document.getElementById('addTaskTitle').value = '';
     document.getElementById('addTaskDesc').value = '';
 }
-
 
 function saveTaskFromAddModal(dateStr, task) {
     try {
@@ -463,15 +496,22 @@ function saveTaskFromAddModal(dateStr, task) {
     }
 }
 
-
 // ==================== Smart Start Helpers ====================
 function showStartModalTaskList() {
     const container = document.getElementById('taskListContainer');
     const noTasks = document.getElementById('smartStartNoTasks');
     const items = JSON.parse(localStorage.getItem('todoItems') || '[]');
-    
+    const startModal = document.getElementById('startSessionModal');
+
+    const optionsDiv = document.querySelector('.modal-options');
+    if (startModal.dataset.fromSidebar === 'true') {
+        optionsDiv.style.display = 'none';
+    } else {
+        optionsDiv.style.display = 'block';
+    }
+
     container.innerHTML = '';
-    
+
     if (items.length === 0) {
         noTasks.style.display = 'block';
         return;
@@ -483,7 +523,7 @@ function showStartModalTaskList() {
 
     const renderGroup = (list, label, isFinished) => {
         if (list.length === 0) return;
-        
+
         const header = document.createElement('h4');
         header.className = 'task-group-header';
         header.textContent = label;
@@ -492,31 +532,30 @@ function showStartModalTaskList() {
         list.forEach(task => {
             const div = document.createElement('div');
             div.className = `task-list-item ${isFinished ? 'task-finished' : ''}`;
-            
+
             const loadIcons = { light: '⚪', medium: '🟡', heavy: '🔴' };
             const loadIcon = loadIcons[task.load] || '🟡';
-            
+
             div.innerHTML = `
                 <span class="load-badge">${loadIcon} ${task.load || 'medium'}</span>
                 <span class="task-title-text">${task.title}</span>
             `;
-            
-            div.addEventListener('click', () => {
-    const startModal = document.getElementById('startSessionModal');
-    startModal._chosenTask = task;
-    
-    // Show load icon + load + title
-    const loadIcons = { light: '⚪', medium: '🟡', heavy: '🔴' };
-    const loadIcon = loadIcons[task.load] || '🟡';
-    document.getElementById('chosenTaskDisplay').innerHTML = `${loadIcon} ${task.load} · 📘 ${task.title}`;
-    
-    document.getElementById('smartStartTaskList').style.display = 'none';
-    document.getElementById('smartStartTimerStep').style.display = 'block';
-    document.getElementById('smartStartBack').style.display = 'inline-block';
 
-    applyRecommendedSettings(task);
-});
-            
+            div.addEventListener('click', () => {
+                const startModal = document.getElementById('startSessionModal');
+                startModal._chosenTask = task;
+
+                const loadIcons = { light: '⚪', medium: '🟡', heavy: '🔴' };
+                const loadIcon = loadIcons[task.load] || '🟡';
+                document.getElementById('chosenTaskDisplay').innerHTML = `${loadIcon} ${task.load} · 📘 ${task.title}`;
+
+                document.getElementById('smartStartTaskList').style.display = 'none';
+                document.getElementById('smartStartTimerStep').style.display = 'block';
+                document.getElementById('smartStartBack').style.display = 'inline-block';
+
+                applyRecommendedSettings(task);
+            });
+
             container.appendChild(div);
         });
     };
@@ -530,20 +569,17 @@ function applyRecommendedSettings(task) {
     const focus = getFocusScore();
     const load = task.load || 'medium';
 
-    // Single Focus recommendation
     const recommendedMode = getRecommendedSingleMode(burnout, focus, load);
     const radioMap = { short: '10', average: '20', deep: '30' };
     const radioValue = radioMap[recommendedMode] || '20';
     document.querySelector(`input[name="singleDuration"][value="${radioValue}"]`).checked = true;
 
-    // Pomodoro recommendation
     const pomo = getRecommendedPomodoro(burnout, focus, load);
     document.getElementById('pomoFocusValue').textContent = pomo.focusMin;
     document.getElementById('pomoBreakValue').textContent = pomo.breakMin;
     document.getElementById('pomoLongBreakValue').textContent = pomo.longBreakMin;
     document.getElementById('pomoSessionsValue').textContent = pomo.sessions;
 
-    // Update single suggestion with load
     updateSingleSuggestion(load);
 }
 
@@ -561,7 +597,6 @@ function updateSingleSuggestion(load) {
     } else if (focusLabel === 'Low' && (burnoutLabel === 'High' || burnoutLabel === 'Moderate')) {
         message = '😴 You seem tired. Short mode suggested.';
     }
-    // Add load‑specific note
     if (load === 'heavy') {
         message += ' (Heavy load – consider shorter session)';
     } else if (load === 'light') {
@@ -570,7 +605,6 @@ function updateSingleSuggestion(load) {
     suggestionEl.textContent = message;
 }
 
-
 function updatePomoHint() {
     const hintEl = document.getElementById('pomoHint');
     if (hintEl) {
@@ -578,6 +612,20 @@ function updatePomoHint() {
     }
 }
 
+function validateAddTaskTitle() {
+    const val = addTitle.value.trim();
+    const len = val.length;
+    addTitleCount.textContent = len;
+    if (len < 1 || len > 30) {
+        addTitleError.style.display = 'block';
+        confirmAddBtn.disabled = true;
+        return false;
+    } else {
+        addTitleError.style.display = 'none';
+        confirmAddBtn.disabled = false;
+        return true;
+    }
+}
 
 // ==================== Modals ====================
 function initializeModals() {
@@ -596,79 +644,89 @@ function initializeModals() {
         if (modal) { modal.classList.remove('show'); modal.setAttribute('aria-hidden', 'true'); }
     };
 
+    // Sidebar Ghost Mode link – open confirmation modal
+    document.getElementById('sidebarGhostLink')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        const ghostConfirmModal = document.getElementById('ghostConfirmModal');
+        openModal(ghostConfirmModal);
+        const startModal = document.getElementById('startSessionModal');
+        startModal.dataset.fromSidebar = 'true';
+    });
+
     // Smart Start flow
     if (startBtn) {
         startBtn.addEventListener('click', function() {
             openModal(startModal);
+            startModal.dataset.fromSidebar = 'false';
             showStartModalTaskList();
         });
     }
 
-    // "Add Task" from inside Smart Start (when no tasks)
     document.getElementById('smartStartAddNewBtn')?.addEventListener('click', () => {
         closeModal(startModal);
         openAddTaskModal(undefined, 'smartstart');
     });
 
-    // Old listener for "Add Task" inside task list (if any) – we keep it for compatibility
     document.getElementById('addTaskFromSmartStart')?.addEventListener('click', () => {
         closeModal(startModal);
         openAddTaskModal(undefined, 'smartstart');
     });
 
-    // Session type toggle
-   document.querySelectorAll('input[name="sessionType"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-        const isPomo = document.querySelector('input[name="sessionType"]:checked')?.value === 'pomodoro';
-        document.getElementById('singleSettings').style.display = isPomo ? 'none' : 'flex';
-        document.getElementById('pomodoroSettings').style.display = isPomo ? 'flex' : 'none';
-        
-        if (!isPomo) {
-            // Single Focus selected
-            if (startModal._chosenTask) {
-                updateSingleSuggestion(startModal._chosenTask.load);
-            } else {
-                updateSingleSuggestion('medium');
-            }
-            document.getElementById('pomoHint').style.display = 'none';
-        } else {
-            // Pomodoro selected
-            document.getElementById('pomoHint').style.display = 'block';
-            if (startModal._chosenTask) {
-                applyRecommendedSettings(startModal._chosenTask);
-            } else {
-                // Fallback: use default medium load
-                const s = getRecommendedPomodoro(getBurnoutScore(), getFocusScore(), 'medium');
-                document.getElementById('pomoFocusValue').textContent = s.focusMin;
-                document.getElementById('pomoBreakValue').textContent = s.breakMin;
-                document.getElementById('pomoLongBreakValue').textContent = s.longBreakMin;
-                document.getElementById('pomoSessionsValue').textContent = s.sessions;
-            }
-            updatePomoHint();
-        }
-    });
-});
+    document.querySelectorAll('input[name="sessionType"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            const isPomo = document.querySelector('input[name="sessionType"]:checked')?.value === 'pomodoro';
+            document.getElementById('singleSettings').style.display = isPomo ? 'none' : 'flex';
+            document.getElementById('pomodoroSettings').style.display = isPomo ? 'flex' : 'none';
 
-    // Trigger change for default selected radio (single) on page load
+            if (!isPomo) {
+                if (startModal._chosenTask) {
+                    updateSingleSuggestion(startModal._chosenTask.load);
+                } else {
+                    updateSingleSuggestion('medium');
+                }
+                document.getElementById('pomoHint').style.display = 'none';
+            } else {
+                document.getElementById('pomoHint').style.display = 'block';
+                if (startModal._chosenTask) {
+                    applyRecommendedSettings(startModal._chosenTask);
+                } else {
+                    const s = getRecommendedPomodoro(getBurnoutScore(), getFocusScore(), 'medium');
+                    document.getElementById('pomoFocusValue').textContent = s.focusMin;
+                    document.getElementById('pomoBreakValue').textContent = s.breakMin;
+                    document.getElementById('pomoLongBreakValue').textContent = s.longBreakMin;
+                    document.getElementById('pomoSessionsValue').textContent = s.sessions;
+                }
+                updatePomoHint();
+            }
+        });
+    });
+
     document.querySelector('input[name="sessionType"]:checked')?.dispatchEvent(new Event('change'));
 
-    // Back button
     document.getElementById('smartStartBack')?.addEventListener('click', () => {
         document.getElementById('smartStartTaskList').style.display = 'block';
         document.getElementById('smartStartTimerStep').style.display = 'none';
         document.getElementById('smartStartBack').style.display = 'none';
     });
 
-    // Start Ghost Mode
     document.getElementById('startGhostBtn')?.addEventListener('click', function() {
         const task = startModal._chosenTask;
         if (!task) return;
-        const sessionType = document.querySelector('input[name="sessionType"]:checked')?.value || 'single';
-        const chosen = document.querySelector('input[name="startMode"]:checked')?.value || 'ghost';
+
+        let sessionType = document.querySelector('input[name="sessionType"]:checked')?.value || 'single';
+        let chosen;
+
+        if (startModal.dataset.fromSidebar === 'true') {
+            chosen = 'ghost';
+        } else {
+            chosen = document.querySelector('input[name="startMode"]:checked')?.value || 'ghost';
+        }
+
         const ghostMode = chosen === 'ghost';
         const soundscape = chosen === 'soundscape';
         const params = {
             taskName: task.title,
+            taskLoad: task.load,
             sessionType,
             ghostMode: ghostMode,
             soundscape: soundscape
@@ -689,10 +747,12 @@ function initializeModals() {
 
     startModal?.addEventListener('click', (e) => { if (e.target === startModal) closeModal(startModal); });
 
-    // Confirm Add Task
     document.getElementById('confirmAddTask')?.addEventListener('click', () => {
         const title = document.getElementById('addTaskTitle')?.value?.trim();
-        if (!title) return alert('Please enter a title');
+        if (!title || title.length < 1 || title.length > 30) {
+            document.getElementById('addTaskTitleError').style.display = 'block';
+            return;
+        }
 
         const startVal = document.getElementById('addTaskStart')?.value || '';
         const dateStr = startVal.slice(0, 10);
@@ -726,7 +786,6 @@ function initializeModals() {
     document.getElementById('cancelAddTask')?.addEventListener('click', closeAddTaskModal);
     addTaskModal?.addEventListener('click', (e) => { if (e.target === addTaskModal) closeAddTaskModal(); });
 
-    // Brain Fog Cleaner
     if (clearBrainBtn) clearBrainBtn.addEventListener('click', () => openModal(brainFogModal));
     brainFogModal?.addEventListener('click', (e) => { if (e.target === brainFogModal) closeModal(brainFogModal); });
 
@@ -737,7 +796,6 @@ function initializeModals() {
         startBtn?.click();
     });
 
-    // Quick Challenge
     if (quickChallengeBtn) quickChallengeBtn.addEventListener('click', () => openModal(quickChallengeModal));
     quickChallengeModal?.addEventListener('click', (e) => { if (e.target === quickChallengeModal) closeModal(quickChallengeModal); });
 
@@ -760,7 +818,6 @@ function initializeModals() {
         }, 1000);
     });
 
-    // Load button toggle
     document.querySelectorAll('.load-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -792,8 +849,27 @@ function initializeModals() {
     document.querySelectorAll('.stepper-btn.minus').forEach(btn => {
         btn.addEventListener('click', () => setupStepper(btn, -1));
     });
-}
 
+    const ghostConfirmModal = document.getElementById('ghostConfirmModal');
+    const ghostConfirmBack = document.getElementById('ghostConfirmBack');
+    const ghostConfirmStart = document.getElementById('ghostConfirmStart');
+
+    if (ghostConfirmBack) {
+        ghostConfirmBack.addEventListener('click', () => closeModal(ghostConfirmModal));
+    }
+    if (ghostConfirmStart) {
+        ghostConfirmStart.addEventListener('click', () => {
+            closeModal(ghostConfirmModal);
+            openModal(startModal);
+            showStartModalTaskList();
+        });
+    }
+    if (ghostConfirmModal) {
+        ghostConfirmModal.addEventListener('click', (e) => {
+            if (e.target === ghostConfirmModal) closeModal(ghostConfirmModal);
+        });
+    }
+}
 
 function addTodo() {
     const todoList = document.getElementById('todoList');
@@ -803,33 +879,29 @@ function addTodo() {
         <input type="checkbox" class="todo-checkbox">
         <span>New task</span>
     `;
-    
+
     li.querySelector('.todo-checkbox').addEventListener('change', function() {
         // Toggle check
     });
-    
+
     todoList.insertBefore(li, todoList.firstChild);
 }
 
 function resetAllData() {
-    const keys = ['user_stats','todoItems','calendarTasks','events','focusHistory','burnoutHistory','ghostSession','study_sessions'];
+    const keys = ['user_stats', 'todoItems', 'calendarTasks', 'events', 'focusHistory', 'burnoutHistory', 'ghostSession', 'study_sessions'];
     keys.forEach(k => localStorage.removeItem(k));
-    // also reset stats key used by stats.js if different
     localStorage.removeItem('user_stats');
-    // re-render UI where possible
-    try { initializeTodo(); } catch(e) {}
-    try { if (typeof renderCalendar === 'function') renderCalendar(smallCalYear, smallCalMonth); } catch(e) {}
-    try { updateStateBar(); } catch(e) {}
+    try { initializeTodo(); } catch (e) { }
+    try { if (typeof renderCalendar === 'function') renderCalendar(smallCalYear, smallCalMonth); } catch (e) { }
+    try { updateStateBar(); } catch (e) { }
     alert('All data reset.');
 }
 
 function deleteTask(taskId, taskTitle) {
-    // 1. Remove from To-Do Array
     let todoItems = JSON.parse(localStorage.getItem('todoItems') || '[]');
     todoItems = todoItems.filter(item => item.id !== taskId);
     localStorage.setItem('todoItems', JSON.stringify(todoItems));
 
-    // 2. Sync with Calendar (Remove by Title/Date match)
     const calendarData = JSON.parse(localStorage.getItem('calendarTasks') || '{}');
     const today = new Date().toISOString().slice(0, 10);
 
@@ -838,20 +910,20 @@ function deleteTask(taskId, taskTitle) {
         if (calendarData[today].length === 0) delete calendarData[today];
         localStorage.setItem('calendarTasks', JSON.stringify(calendarData));
     }
-    
-    renderTodoUI(); // Refresh the list
+
+    renderTodoUI();
 }
 
 function populateSmartStartTasks() {
-    const taskContainer = document.getElementById('smartStartTaskContainer'); 
+    const taskContainer = document.getElementById('smartStartTaskContainer');
     const todoItems = JSON.parse(localStorage.getItem('todoItems') || '[]');
-    
+
     const pendingTasks = todoItems.filter(t => !t.completed);
     const finishedTasks = todoItems.filter(t => t.completed);
 
     let html = `<h4>📌 Active Tasks</h4>`;
     if (pendingTasks.length === 0) html += `<p class="empty-msg">No active tasks</p>`;
-    
+
     pendingTasks.forEach(task => {
         html += `<button class="task-opt" onclick="selectTask('${task.title}')">${task.title}</button>`;
     });

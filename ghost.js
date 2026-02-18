@@ -7,6 +7,7 @@
     }
     const params = JSON.parse(sessionStorage.getItem('ghostSession') || '{}');
     const taskName = params.taskName || 'Task';
+    const taskLoad = params.taskLoad || 'medium';          // moved inside
     const sessionType = params.sessionType || 'single';
     const hasTask = !!params.taskName;
     const soundscape = params.soundscape || false;
@@ -81,17 +82,37 @@
         if (labelEl) labelEl.textContent = label;
     }
 
-    function startTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            updateDisplay();
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                onPhaseComplete();
-            }
-        }, 1000);
+    // Inside ghost.js, after defining variables, add:
+function requestFullscreenWithFallback() {
+    if (document.documentElement.requestFullscreen) {
+        // Slight delay to ensure it's within the user gesture chain
+        setTimeout(() => {
+            document.documentElement.requestFullscreen().catch(() => {
+                console.log('Fullscreen request failed or was denied');
+            });
+        }, 100);
     }
+}
+
+// Call it immediately after the script runs
+requestFullscreenWithFallback();
+
+// Retry fullscreen on first user click (if blocked)
+  document.body.addEventListener('click', function once() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+    }
+    document.body.removeEventListener('click', once);
+}, { once: true });
+
+// Fullscreen exit detection
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && timeLeft > 0 && currentMode === 'focus') {
+        leaveMessage.textContent = `You have ${Math.ceil(timeLeft/60)} mins left. Leaving fullscreen will count as an early exit.`;
+        leaveModal.classList.add('show');
+        leaveModal.setAttribute('aria-hidden', 'false');
+    }
+});
 
     function onPhaseComplete() {
         if (currentMode === 'focus') {
@@ -155,27 +176,24 @@
     });
 
     confirmFinishedBtn?.addEventListener('click', () => {
-    const params = JSON.parse(sessionStorage.getItem('ghostSession') || '{}');
-    const taskName = params.taskName;
-    const duration = params.sessionType === 'single' ? params.durationMin : params.focusMin; // or total focus time
+        const params = JSON.parse(sessionStorage.getItem('ghostSession') || '{}');
+        const taskName = params.taskName;
+        const duration = params.sessionType === 'single' ? params.durationMin : params.focusMin;
 
-    // Update global todo list
-    let tasks = JSON.parse(localStorage.getItem('todoItems') || '[]');
-    const taskIndex = tasks.findIndex(t => t.title === taskName);
-    if (taskIndex !== -1) 
-    {
-        tasks[taskIndex].completed = true;
-        localStorage.setItem('todoItems', JSON.stringify(tasks));
-    }
+        let tasks = JSON.parse(localStorage.getItem('todoItems') || '[]');
+        const taskIndex = tasks.findIndex(t => t.title === taskName);
+        if (taskIndex !== -1) {
+            tasks[taskIndex].completed = true;
+            localStorage.setItem('todoItems', JSON.stringify(tasks));
+        }
 
-    // Record completed session to increase focus
-    if (typeof recordSessionCompleted === 'function') {
-        recordSessionCompleted(duration);
-    }
+        if (typeof recordSessionCompleted === 'function') {
+            recordSessionCompleted(duration);
+        }
 
-    sessionStorage.removeItem('ghostSession');
-    redirectHome();
-});
+        sessionStorage.removeItem('ghostSession');
+        redirectHome();
+    });
 
     btnConfusing?.addEventListener('click', () => {
         if (typeof recordConfusion === 'function') recordConfusion();
@@ -208,7 +226,12 @@
     });
 
     confirmLeaveBtn?.addEventListener('click', () => {
-        if (typeof recordEarlyExit === 'function') recordEarlyExit();
+        let plannedDuration = isPomodoro ? focusMin : singleDuration;
+        if (typeof recordEarlyExitWithDetails === 'function') {
+            recordEarlyExitWithDetails(plannedDuration, taskLoad);
+        } else {
+            if (typeof recordEarlyExit === 'function') recordEarlyExit();
+        }
         if (typeof recordDistraction === 'function') recordDistraction();
         redirectHome();
     });
@@ -225,7 +248,7 @@
         }
     });
 
-    // Music: only play when task in session and music enabled
+    // Music
     if (ghostMusic && hasTask && ghostMusicToggle) {
         ghostMusicToggle.checked = soundscape;
         ghostMusicToggle.addEventListener('change', () => {
