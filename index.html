@@ -104,7 +104,6 @@
                 <div class="quick-actions">
                     <button class="quick-action-btn" id="quickChallengeBtn">⚡ Quick Challenge</button>
                     <button class="quick-action-btn" id="clearBrainBtn">🧼 Clear Brain</button>
-                    <button class="quick-action-btn" id="studyBuddyBtn">👥 Study Buddy</button>
                 </div>
 
                 <!-- Calendar & To-Do Grid -->
@@ -156,47 +155,78 @@
     </div>
 
     <!-- Start Session Modal -->
-    <div id="startSessionModal" class="modal" aria-hidden="true">
-        <div class="modal-card modal-start modal-wide">
-            <h3>🎯 Start Study Session</h3>
-            <div id="smartStartNoTasks" class="smart-start-empty" style="display:none;">
-                <p>No tasks yet. Add a task to get started.</p>
-                <button class="btn btn-yes" id="addTaskFromSmartStart">Add Task</button>
-            </div>
-            <div id="smartStartTaskList" class="smart-start-tasks">
-                <p class="modal-label">Choose a task:</p>
-                <div id="taskListContainer" class="task-list"></div>
-            </div>
-            <div id="smartStartTimerStep" class="smart-start-timer-step" style="display:none;">
-                <p class="modal-task-chosen" id="chosenTaskDisplay"></p>
-                <div class="modal-session-type">
-                    <label><input type="radio" name="sessionType" value="single" checked> Single Focus</label>
-                    <label><input type="radio" name="sessionType" value="pomodoro"> Pomodoro</label>
-                </div>
-              <div id="singleSettings" class="timer-settings-row" style="display:none;">
-    <div class="single-duration-options">
-        <label><input type="radio" name="singleDuration" value="10" checked> Short (10 min)</label>
-        <label><input type="radio" name="singleDuration" value="20"> Average (20 min)</label>
-        <label><input type="radio" name="singleDuration" value="30"> Deep (30 min)</label>
-    </div>
-    <p id="singleSuggestion" class="single-suggestion"></p>
-</div>
-               <div id="pomodoroSettings" class="timer-settings-row" style="display:none;">
-    <label>Focus (min) <input type="number" id="pomoFocus" min="10" max="60" value="25"></label>
-    <label>Break (min) <input type="number" id="pomoBreak" min="1" max="15" value="5"></label>
-    <label>Long break (min) <input type="number" id="pomoLongBreak" min="5" max="45" value="20"></label>
-    <label>Sessions before long break <input type="number" id="pomoSessions" min="2" max="8" value="4"></label>
-    <p id="pomoHint" style="font-size:0.9rem; color:#059669; margin-top:8px;"></p>
-</div>
-                <div class="modal-options">
-                    <label><input type="radio" name="startMode" value="ghost" checked> Ghost Mode</label>
-                    <label><input type="radio" name="startMode" value="soundscape"> Soundscape <span class="placeholder-tag">placeholder</span></label>
-                </div>
-                <button class="btn btn-yes modal-confirm" id="startGhostBtn">Start Session</button>
-            </div>
-            <button class="btn btn-no modal-back" id="smartStartBack" style="display:none;">← Back</button>
+    <!-- Start Session Modal -->
+<div id="startSessionModal" class="modal" aria-hidden="true">
+    <div class="modal-card modal-start modal-wide">
+        <h3>🎯 Start Study Session</h3>
+        <div id="smartStartNoTasks" style="display:none; text-align:center; padding:20px;">
+            <p>No tasks yet! Add one to get started.</p>
+            <button class="btn btn-yes" id="smartStartAddNewBtn" style="margin-top:10px;">+ Add New Task</button>
         </div>
+        <div id="smartStartTaskList" class="smart-start-tasks">
+            <p class="modal-label">Choose a task:</p>
+            <div id="taskListContainer" class="task-list"></div>
+        </div>
+        <div id="smartStartTimerStep" class="smart-start-timer-step" style="display:none;">
+            <p class="modal-task-chosen" id="chosenTaskDisplay"></p>
+            <div class="modal-session-type">
+                <label><input type="radio" name="sessionType" value="single" checked> Single Focus</label>
+                <label><input type="radio" name="sessionType" value="pomodoro"> Pomodoro</label>
+            </div>
+            <!-- Single Focus Settings -->
+            <div id="singleSettings" class="timer-settings-row">
+                <div class="single-duration-options">
+                    <label><input type="radio" name="singleDuration" value="10" checked> Short (10 min)</label>
+                    <label><input type="radio" name="singleDuration" value="20"> Average (20 min)</label>
+                    <label><input type="radio" name="singleDuration" value="30"> Deep (30 min)</label>
+                </div>
+                <p id="singleSuggestion" class="single-suggestion"></p>
+            </div>
+            <!-- Pomodoro Settings with Steppers -->
+            <div id="pomodoroSettings" class="timer-settings-row" style="display:none;">
+                <div class="pomo-control">
+                    <label>Focus (min)</label>
+                    <div class="stepper">
+                        <button class="stepper-btn minus" data-target="pomoFocus">−</button>
+                        <span class="stepper-value" id="pomoFocusValue">25</span>
+                        <button class="stepper-btn plus" data-target="pomoFocus">+</button>
+                    </div>
+                </div>
+                <div class="pomo-control">
+                    <label>Break (min)</label>
+                    <div class="stepper">
+                        <button class="stepper-btn minus" data-target="pomoBreak">−</button>
+                        <span class="stepper-value" id="pomoBreakValue">5</span>
+                        <button class="stepper-btn plus" data-target="pomoBreak">+</button>
+                    </div>
+                </div>
+                <div class="pomo-control">
+                    <label>Long break (min)</label>
+                    <div class="stepper">
+                        <button class="stepper-btn minus" data-target="pomoLongBreak">−</button>
+                        <span class="stepper-value" id="pomoLongBreakValue">20</span>
+                        <button class="stepper-btn plus" data-target="pomoLongBreak">+</button>
+                    </div>
+                </div>
+                <div class="pomo-control">
+                    <label>Sessions before long break</label>
+                    <div class="stepper">
+                        <button class="stepper-btn minus" data-target="pomoSessions">−</button>
+                        <span class="stepper-value" id="pomoSessionsValue">4</span>
+                        <button class="stepper-btn plus" data-target="pomoSessions">+</button>
+                    </div>
+                </div>
+                <p id="pomoHint" style="font-size:0.9rem; color:#059669; margin-top:8px;">Chosen the suggested settings based on focus and burnout</p>
+            </div>
+            <div class="modal-options">
+                <label><input type="radio" name="startMode" value="ghost" checked> Ghost Mode</label>
+                <label><input type="radio" name="startMode" value="soundscape"> Soundscape <span class="placeholder-tag">placeholder</span></label>
+            </div>
+            <button class="btn btn-yes modal-confirm" id="startGhostBtn">Start Session</button>
+        </div>
+        <button class="btn btn-no modal-back" id="smartStartBack" style="display:none;">← Back</button>
     </div>
+</div>
 
     <!-- Add Task Modal (dashboard) -->
     <div id="addTaskModal" class="modal task-modal" aria-hidden="true">
@@ -204,6 +234,12 @@
             <h3>Add Task</h3>
             <label>Title<input id="addTaskTitle" type="text" placeholder="Task name"></label>
             <label>Description (optional)<textarea id="addTaskDesc" rows="3" placeholder="Details..."></textarea></label>
+            <div class="load-selector">
+    <span class="load-label">Load:</span>
+    <button type="button" class="load-btn light" data-load="light">Light</button>
+    <button type="button" class="load-btn medium active" data-load="medium">Medium</button>
+    <button type="button" class="load-btn heavy" data-load="heavy">Heavy</button>
+</div>
             <div class="datetime-row">
                 <label>Start<input id="addTaskStart" type="datetime-local"></label>
                 <label>End<input id="addTaskEnd" type="datetime-local"></label>
@@ -249,15 +285,6 @@
                 <button class="mood-btn" data-value="1">😞 Bad</button>
             </div>
             <label>Note (optional) <input type="text" id="moodNote" placeholder="e.g. tired because of exam"></label>
-        </div>
-    </div>
-
-    <!-- Study Buddy Modal -->
-    <div id="studyBuddyModal" class="modal" aria-hidden="true">
-        <div class="modal-card">
-            <h3>👥 Study Buddy</h3>
-            <p>Match with someone studying now?</p>
-            <button class="btn btn-yes" id="findBuddyBtn">Find Buddy</button>
         </div>
     </div>
 

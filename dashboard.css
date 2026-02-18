@@ -1215,3 +1215,175 @@ body {
     .quick-actions { flex-wrap: wrap; }
     .quick-actions-dash { padding: 0 20px 16px; }
 }
+
+
+/* Load Buttons */
+.load-selector { display: flex; gap: 8px; margin: 10px 0; }
+.load-btn { 
+    flex: 1; padding: 8px; border: 2px solid #eee; border-radius: 8px; 
+    background: #fff; cursor: pointer; transition: 0.2s; font-weight: 600;
+}
+.load-btn.active.light { border-color: #10b981; background: #ecfdf5; }
+.load-btn.active.medium { border-color: #f59e0b; background: #fffbeb; }
+.load-btn.active.heavy { border-color: #ef4444; background: #fef2f2; }
+
+/* Smart Start Badges */
+.task-group-header { font-size: 11px; color: #9ca3af; text-transform: uppercase; margin: 15px 0 5px; }
+.load-badge { 
+    font-size: 10px; padding: 2px 8px; background: #f3f4f6; 
+    border-radius: 10px; text-transform: capitalize; margin-right: 8px;
+}
+.finished-task { opacity: 0.6; }
+.finished-task .task-title-text { text-decoration: line-through; }
+
+.single-duration-options {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+    justify-content: space-between;
+}
+
+.single-duration-options label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    background: #f9fafb;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    flex: 1;
+    justify-content: center;
+}
+
+.single-duration-options input[type="radio"] {
+    margin: 0;
+    accent-color: #10b981;
+}
+
+/* Load badge for task list */
+.load-badge {
+    font-size: 11px;
+    padding: 2px 6px;
+    background: #f3f4f6;
+    border-radius: 12px;
+    margin-right: 8px;
+    text-transform: capitalize;
+}
+
+/* Single duration options as buttons */
+.single-duration-options {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+    justify-content: space-between;
+}
+.single-duration-options label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    background: #f9fafb;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    flex: 1;
+    justify-content: center;
+}
+.single-duration-options input[type="radio"] {
+    margin: 0;
+    accent-color: #10b981;
+}
+
+/* Pomodoro stepper controls */
+.pomo-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin: 8px 0;
+}
+.pomo-control label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+}
+.stepper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f9fafb;
+    border-radius: 999px;
+    padding: 4px 8px;
+    border: 1px solid #e5e7eb;
+}
+.stepper-btn {
+    background: none;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: 600;
+    color: #10b981;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.stepper-btn:hover {
+    background: #e5e7eb;
+}
+.stepper-value {
+    min-width: 30px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.task-pill.finished {
+    text-decoration: line-through;
+    opacity: 0.6;
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.calendar-day-large {
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 110px;
+    border: 1px solid #f3f4f6;
+    position: relative;
+    overflow: visible;
+    width: 100%;                /* added */
+    max-width: 100%;            /* added */
+    box-sizing: border-box;      /* ensure padding doesn't add to width */
+}
+
+.calendar-day-large .tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 100%;            /* added */
+    overflow: hidden;            /* added */
+}
+
+.task-pill {
+    background: #f3faf8;
+    border: 1px solid #e6f4ef;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #064e3b;
+    max-width: 100%;             /* added */
+    overflow-wrap: break-word;    /* added */
+    word-break: break-word;       /* added */
+    white-space: normal;          /* added */
+}
+
+.calendar-grid-large {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    width: 100%;                 /* added */
+}

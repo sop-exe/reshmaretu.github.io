@@ -216,3 +216,80 @@ function getRecommendedPomodoroSettings() {
     else if (fLabel === 'High') { focusMin = 30; breakMin = 5; longBreakMin = 25; }
     return { focusMin, breakMin, longBreakMin, sessionsBeforeLong };
 }
+
+// ========== Adaptive Timer Recommendations (with Load) ==========
+
+/**
+ * Get recommended single focus duration based on burnout, focus, and task load.
+ * Returns: 'short', 'average', or 'deep'
+ */
+function getRecommendedSingleMode(burnout, focus, load) {
+    // Priority: burnout > focus > load
+    if (burnout >= 61) return 'short';                     // High burnout
+
+    if (burnout >= 31) {                                   // Moderate burnout
+        if (focus >= 70) {
+            return load === 'light' ? 'deep' : 'average';
+        } else if (focus >= 40) {
+            return 'average';
+        } else { // low focus
+            return load === 'light' ? 'average' : 'short';
+        }
+    }
+
+    // Low burnout
+    if (focus >= 70) {
+        return load === 'heavy' ? 'average' : 'deep';
+    } else if (focus >= 40) {
+        if (load === 'light') return 'deep';
+        if (load === 'medium') return 'average';
+        return 'short'; // heavy
+    } else { // low focus
+        return load === 'light' ? 'average' : 'short';
+    }
+}
+
+/**
+ * Get recommended Pomodoro settings based on burnout, focus, and task load.
+ * Returns: { focusMin, breakMin, longBreakMin, sessions }
+ */
+function getRecommendedPomodoro(burnout, focus, load) {
+    let focusMin = 25, breakMin = 5, longBreakMin = 20, sessions = 4;
+
+    // 1. Apply burnout modifier (highest priority)
+    if (burnout >= 61) {               // High burnout
+        focusMin = Math.max(15, Math.round(focusMin * 0.7));
+        breakMin = Math.min(10, Math.round(breakMin * 1.2));
+        longBreakMin = Math.min(30, Math.round(longBreakMin * 1.2));
+        sessions = Math.max(2, sessions - 1);
+    } else if (burnout >= 31) {         // Moderate burnout – no change
+        // keep base
+    } else {                             // Low burnout
+        focusMin = Math.min(40, Math.round(focusMin * 1.2));
+        longBreakMin = Math.min(30, Math.round(longBreakMin * 1.2));
+    }
+
+    // 2. Apply focus modifier
+    if (focus >= 70) {                   // High focus
+        focusMin = Math.min(45, Math.round(focusMin * 1.1));
+        breakMin = Math.max(3, Math.round(breakMin * 0.9));
+    } else if (focus <= 39) {            // Low focus
+        focusMin = Math.max(15, Math.round(focusMin * 0.9));
+        breakMin = Math.min(10, Math.round(breakMin * 1.1));
+    }
+
+    // 3. Apply load modifier (fine‑tuning)
+    if (load === 'light') {
+        focusMin = Math.min(45, Math.round(focusMin * 1.1));
+        breakMin = Math.max(3, Math.round(breakMin * 0.9));
+        longBreakMin = Math.max(10, Math.round(longBreakMin * 0.9));
+        sessions = Math.min(6, sessions + 1);
+    } else if (load === 'heavy') {
+        focusMin = Math.max(15, Math.round(focusMin * 0.9));
+        breakMin = Math.min(10, Math.round(breakMin * 1.1));
+        longBreakMin = Math.min(30, Math.round(longBreakMin * 1.1));
+        sessions = Math.max(2, sessions - 1);
+    }
+
+    return { focusMin, breakMin, longBreakMin, sessions };
+}

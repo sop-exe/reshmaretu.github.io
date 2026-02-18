@@ -157,19 +157,23 @@
     confirmFinishedBtn?.addEventListener('click', () => {
     const params = JSON.parse(sessionStorage.getItem('ghostSession') || '{}');
     const taskName = params.taskName;
+    const duration = params.sessionType === 'single' ? params.durationMin : params.focusMin; // or total focus time
 
     // Update global todo list
     let tasks = JSON.parse(localStorage.getItem('todoItems') || '[]');
     const taskIndex = tasks.findIndex(t => t.title === taskName);
-    
-    if (taskIndex !== -1) {
+    if (taskIndex !== -1) 
+    {
         tasks[taskIndex].completed = true;
         localStorage.setItem('todoItems', JSON.stringify(tasks));
     }
 
-    // Record stats and exit
-    if (typeof recordSessionComplete === 'function') recordSessionComplete();
-    sessionStorage.removeItem('ghostSession'); 
+    // Record completed session to increase focus
+    if (typeof recordSessionCompleted === 'function') {
+        recordSessionCompleted(duration);
+    }
+
+    sessionStorage.removeItem('ghostSession');
     redirectHome();
 });
 

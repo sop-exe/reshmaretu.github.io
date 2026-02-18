@@ -208,7 +208,7 @@ function initializeTodo() {
     if (addBtn) {
         addBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            openAddTaskModal();
+            openAddTaskModal(undefined, 'todo');   // source = 'todo'
         });
     }
     
@@ -251,7 +251,7 @@ function initializeTodo() {
             if (!confirm('Mark as finished?')) return;
             
             filteredItems[idx].completed = true;
-            filteredItems[idx].finishedAt = Date.now(); // For 6-hour auto-removal
+            filteredItems[idx].finishedAt = Date.now();
             localStorage.setItem('todoItems', JSON.stringify(filteredItems));
             initializeTodo();
         });
@@ -261,11 +261,9 @@ function initializeTodo() {
             
             const taskToDelete = filteredItems[idx];
             
-            // 1. Remove from todoItems
             filteredItems.splice(idx, 1);
             localStorage.setItem('todoItems', JSON.stringify(filteredItems));
 
-            // 2. Remove from calendarTasks to sync Calendar Page and Smart Start
             const calendarData = JSON.parse(localStorage.getItem('calendarTasks') || '{}');
             if (taskToDelete.date && calendarData[taskToDelete.date]) {
                 calendarData[taskToDelete.date] = calendarData[taskToDelete.date].filter(t => t.title !== taskToDelete.title);
@@ -419,13 +417,20 @@ function getAllCalendarTasks() {
 }
 
 // ==================== Add Task Modal ====================
-function openAddTaskModal(forDate) {
+function openAddTaskModal(forDate, source = 'todo') {
     const modal = document.getElementById('addTaskModal');
     const date = forDate || new Date().toISOString().slice(0, 10);
     document.getElementById('addTaskStart').value = date + 'T09:00';
     document.getElementById('addTaskEnd').value = date + 'T10:00';
-    modal?.classList.add('show');
-    modal?.setAttribute('aria-hidden', 'false');
+
+    modal.dataset.source = source;
+
+    // Reset load selector to default (Medium)
+    document.querySelectorAll('.load-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('.load-btn.medium')?.classList.add('active');
+
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
 }
 
 function closeAddTaskModal() {
@@ -436,91 +441,143 @@ function closeAddTaskModal() {
     document.getElementById('addTaskDesc').value = '';
 }
 
+
 function saveTaskFromAddModal(dateStr, task) {
     try {
-        const raw = localStorage.getItem('calendarTasks');
-        const obj = raw ? JSON.parse(raw) : {};
-        obj[dateStr] = obj[dateStr] || [];
-        obj[dateStr].push(task);
-        localStorage.setItem('calendarTasks', JSON.stringify(obj));
+        const rawCal = localStorage.getItem('calendarTasks');
+        const calObj = rawCal ? JSON.parse(rawCal) : {};
+        calObj[dateStr] = calObj[dateStr] || [];
+        calObj[dateStr].push(task);
+        localStorage.setItem('calendarTasks', JSON.stringify(calObj));
+
         const todos = JSON.parse(localStorage.getItem('todoItems') || '[]');
-        todos.push({ title: task.title, date: dateStr, completed: false });
+        todos.push({
+            title: task.title,
+            date: dateStr,
+            completed: false,
+            load: task.load
+        });
         localStorage.setItem('todoItems', JSON.stringify(todos));
-    } catch (e) {}
+    } catch (e) {
+        console.error('Failed to save task', e);
+    }
 }
+
 
 // ==================== Smart Start Helpers ====================
 function showStartModalTaskList() {
     const container = document.getElementById('taskListContainer');
     const noTasks = document.getElementById('smartStartNoTasks');
-    const taskList = document.getElementById('smartStartTaskList');
+    const items = JSON.parse(localStorage.getItem('todoItems') || '[]');
     
-    // Use todoItems as the primary source for status tracking
-    const todoItems = JSON.parse(localStorage.getItem('todoItems') || '[]');
-
-    if (todoItems.length === 0) {
+    container.innerHTML = '';
+    
+    if (items.length === 0) {
         noTasks.style.display = 'block';
-        taskList.style.display = 'none';
         return;
     }
-
     noTasks.style.display = 'none';
-    taskList.style.display = 'block';
-    container.innerHTML = '';
 
-    const pending = todoItems.filter(t => !t.completed);
-    const finished = todoItems.filter(t => t.completed);
+    const pending = items.filter(t => !t.completed);
+    const finished = items.filter(t => t.completed);
 
-    const renderSection = (title, list, isFinished) => {
+    const renderGroup = (list, label, isFinished) => {
         if (list.length === 0) return;
         
         const header = document.createElement('h4');
         header.className = 'task-group-header';
-        header.textContent = title;
+        header.textContent = label;
         container.appendChild(header);
 
-        list.forEach((t) => {
+        list.forEach(task => {
             const div = document.createElement('div');
-            div.className = `task-list-item ${isFinished ? 'task-done' : ''}`;
-            div.innerHTML = `<span>${t.title}</span> <small>${t.date || ''}</small>`;
+            div.className = `task-list-item ${isFinished ? 'task-finished' : ''}`;
+            
+            const loadIcons = { light: '⚪', medium: '🟡', heavy: '🔴' };
+            const loadIcon = loadIcons[task.load] || '🟡';
+            
+            div.innerHTML = `
+                <span class="load-badge">${loadIcon} ${task.load || 'medium'}</span>
+                <span class="task-title-text">${task.title}</span>
+            `;
             
             div.addEventListener('click', () => {
-                const startModal = document.getElementById('startSessionModal');
-                startModal._chosenTask = t;
-                document.getElementById('chosenTaskDisplay').textContent = '📘 ' + t.title;
-                document.getElementById('smartStartTaskList').style.display = 'none';
-                document.getElementById('smartStartTimerStep').style.display = 'block';
-                document.getElementById('smartStartBack').style.display = 'inline-block';
-                updateSingleSuggestion();
-            });
+    const startModal = document.getElementById('startSessionModal');
+    startModal._chosenTask = task;
+    
+    // Show load icon + load + title
+    const loadIcons = { light: '⚪', medium: '🟡', heavy: '🔴' };
+    const loadIcon = loadIcons[task.load] || '🟡';
+    document.getElementById('chosenTaskDisplay').innerHTML = `${loadIcon} ${task.load} · 📘 ${task.title}`;
+    
+    document.getElementById('smartStartTaskList').style.display = 'none';
+    document.getElementById('smartStartTimerStep').style.display = 'block';
+    document.getElementById('smartStartBack').style.display = 'inline-block';
+
+    applyRecommendedSettings(task);
+});
+            
             container.appendChild(div);
         });
     };
 
-    renderSection('📌 Active Tasks', pending, false);
-    renderSection('✅ Completed (Last 6h)', finished, true);
+    renderGroup(pending, "📌 Active Tasks", false);
+    renderGroup(finished, "✅ Recently Finished", true);
 }
 
-function updateSingleSuggestion() {
+function applyRecommendedSettings(task) {
+    const burnout = getBurnoutScore();
+    const focus = getFocusScore();
+    const load = task.load || 'medium';
+
+    // Single Focus recommendation
+    const recommendedMode = getRecommendedSingleMode(burnout, focus, load);
+    const radioMap = { short: '10', average: '20', deep: '30' };
+    const radioValue = radioMap[recommendedMode] || '20';
+    document.querySelector(`input[name="singleDuration"][value="${radioValue}"]`).checked = true;
+
+    // Pomodoro recommendation
+    const pomo = getRecommendedPomodoro(burnout, focus, load);
+    document.getElementById('pomoFocusValue').textContent = pomo.focusMin;
+    document.getElementById('pomoBreakValue').textContent = pomo.breakMin;
+    document.getElementById('pomoLongBreakValue').textContent = pomo.longBreakMin;
+    document.getElementById('pomoSessionsValue').textContent = pomo.sessions;
+
+    // Update single suggestion with load
+    updateSingleSuggestion(load);
+}
+
+function updateSingleSuggestion(load) {
     const focus = getFocusScore();
     const burnout = getBurnoutScore();
     const focusLabel = getFocusLabel(focus);
     const burnoutLabel = getBurnoutLabel(burnout);
     const suggestionEl = document.getElementById('singleSuggestion');
     if (!suggestionEl) return;
+
+    let message = '✨ Recommended based on your focus, burnout, and task load.';
     if (focusLabel === 'High' && burnoutLabel === 'Low') {
-        suggestionEl.textContent = 'You\'re highly focused! Try deep mode.';
+        message = '🔥 You\'re highly focused! Deep mode suggested.';
     } else if (focusLabel === 'Low' && (burnoutLabel === 'High' || burnoutLabel === 'Moderate')) {
-        suggestionEl.textContent = 'You seem tired. Try using "Clear Brain" or a short session.';
-    } else {
-        suggestionEl.textContent = '';
+        message = '😴 You seem tired. Short mode suggested.';
     }
+    // Add load‑specific note
+    if (load === 'heavy') {
+        message += ' (Heavy load – consider shorter session)';
+    } else if (load === 'light') {
+        message += ' (Light load – you can go longer)';
+    }
+    suggestionEl.textContent = message;
 }
+
 
 function updatePomoHint() {
     const hintEl = document.getElementById('pomoHint');
-    if (hintEl) hintEl.textContent = 'Changed based on your focus';
+    if (hintEl) {
+        hintEl.textContent = 'Chosen the suggested settings based on focus and burnout';
+    }
 }
+
 
 // ==================== Modals ====================
 function initializeModals() {
@@ -531,8 +588,6 @@ function initializeModals() {
     const clearBrainBtn = document.getElementById('clearBrainBtn');
     const quickChallengeModal = document.getElementById('quickChallengeModal');
     const quickChallengeBtn = document.getElementById('quickChallengeBtn');
-    const studyBuddyModal = document.getElementById('studyBuddyModal');
-    const studyBuddyBtn = document.getElementById('studyBuddyBtn');
 
     const openModal = (modal) => {
         if (modal) { modal.classList.add('show'); modal.setAttribute('aria-hidden', 'false'); }
@@ -549,64 +604,62 @@ function initializeModals() {
         });
     }
 
+    // "Add Task" from inside Smart Start (when no tasks)
+    document.getElementById('smartStartAddNewBtn')?.addEventListener('click', () => {
+        closeModal(startModal);
+        openAddTaskModal(undefined, 'smartstart');
+    });
+
+    // Old listener for "Add Task" inside task list (if any) – we keep it for compatibility
     document.getElementById('addTaskFromSmartStart')?.addEventListener('click', () => {
         closeModal(startModal);
-        openAddTaskModal();
+        openAddTaskModal(undefined, 'smartstart');
     });
 
-    document.querySelectorAll('input[name="sessionType"]').forEach(radio => {
-        radio.addEventListener('change', () => {
-            const isPomo = document.querySelector('input[name="sessionType"]:checked')?.value === 'pomodoro';
-            document.getElementById('singleSettings').style.display = isPomo ? 'none' : 'flex';
-            document.getElementById('pomodoroSettings').style.display = isPomo ? 'flex' : 'none';
-            if (!isPomo) {
-                updateSingleSuggestion();
+    // Session type toggle
+   document.querySelectorAll('input[name="sessionType"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        const isPomo = document.querySelector('input[name="sessionType"]:checked')?.value === 'pomodoro';
+        document.getElementById('singleSettings').style.display = isPomo ? 'none' : 'flex';
+        document.getElementById('pomodoroSettings').style.display = isPomo ? 'flex' : 'none';
+        
+        if (!isPomo) {
+            // Single Focus selected
+            if (startModal._chosenTask) {
+                updateSingleSuggestion(startModal._chosenTask.load);
+            } else {
+                updateSingleSuggestion('medium');
             }
-            if (isPomo) {
-                const s = getRecommendedPomodoroSettings();
-                document.getElementById('pomoFocus').value = s.focusMin;
-                document.getElementById('pomoBreak').value = s.breakMin;
-                document.getElementById('pomoLongBreak').value = s.longBreakMin;
-                document.getElementById('pomoSessions').value = s.sessionsBeforeLong;
-                updatePomoHint();
+            document.getElementById('pomoHint').style.display = 'none';
+        } else {
+            // Pomodoro selected
+            document.getElementById('pomoHint').style.display = 'block';
+            if (startModal._chosenTask) {
+                applyRecommendedSettings(startModal._chosenTask);
+            } else {
+                // Fallback: use default medium load
+                const s = getRecommendedPomodoro(getBurnoutScore(), getFocusScore(), 'medium');
+                document.getElementById('pomoFocusValue').textContent = s.focusMin;
+                document.getElementById('pomoBreakValue').textContent = s.breakMin;
+                document.getElementById('pomoLongBreakValue').textContent = s.longBreakMin;
+                document.getElementById('pomoSessionsValue').textContent = s.sessions;
             }
-        });
-    });
-
-    document.getElementById('taskListContainer')?.addEventListener('click', (e) => {
-        const item = e.target.closest('.task-list-item');
-        if (item) {
-            const tasks = getAllCalendarTasks();
-            const idx = parseInt(item.dataset.index, 10);
-            const t = tasks[idx];
-            if (t) {
-                startModal._chosenTask = t;
-                document.getElementById('chosenTaskDisplay').textContent = '📘 ' + t.title;
-                document.getElementById('smartStartTaskList').style.display = 'none';
-                document.getElementById('smartStartTimerStep').style.display = 'block';
-                document.getElementById('smartStartBack').style.display = 'inline-block';
-                const isPomo = document.querySelector('input[name="sessionType"]:checked')?.value === 'pomodoro';
-                document.getElementById('singleSettings').style.display = isPomo ? 'none' : 'flex';
-                document.getElementById('pomodoroSettings').style.display = isPomo ? 'flex' : 'none';
-                if (isPomo) {
-                    const s = getRecommendedPomodoroSettings();
-                    document.getElementById('pomoFocus').value = s.focusMin;
-                    document.getElementById('pomoBreak').value = s.breakMin;
-                    document.getElementById('pomoLongBreak').value = s.longBreakMin;
-                    document.getElementById('pomoSessions').value = s.sessionsBeforeLong;
-                }
-                updateSingleSuggestion();
-                updatePomoHint();
-            }
+            updatePomoHint();
         }
     });
+});
 
+    // Trigger change for default selected radio (single) on page load
+    document.querySelector('input[name="sessionType"]:checked')?.dispatchEvent(new Event('change'));
+
+    // Back button
     document.getElementById('smartStartBack')?.addEventListener('click', () => {
         document.getElementById('smartStartTaskList').style.display = 'block';
         document.getElementById('smartStartTimerStep').style.display = 'none';
         document.getElementById('smartStartBack').style.display = 'none';
     });
 
+    // Start Ghost Mode
     document.getElementById('startGhostBtn')?.addEventListener('click', function() {
         const task = startModal._chosenTask;
         if (!task) return;
@@ -621,14 +674,13 @@ function initializeModals() {
             soundscape: soundscape
         };
         if (sessionType === 'single') {
-            // Read selected radio button value
             const selectedDuration = document.querySelector('input[name="singleDuration"]:checked')?.value;
             params.durationMin = selectedDuration ? parseInt(selectedDuration, 10) : 10;
         } else {
-            params.focusMin = parseInt(document.getElementById('pomoFocus').value, 10) || 25;
-            params.breakMin = parseInt(document.getElementById('pomoBreak').value, 10) || 5;
-            params.longBreakMin = parseInt(document.getElementById('pomoLongBreak').value, 10) || 20;
-            params.sessionsBeforeLong = parseInt(document.getElementById('pomoSessions').value, 10) || 4;
+            params.focusMin = parseInt(document.getElementById('pomoFocusValue').textContent, 10) || 25;
+            params.breakMin = parseInt(document.getElementById('pomoBreakValue').textContent, 10) || 5;
+            params.longBreakMin = parseInt(document.getElementById('pomoLongBreakValue').textContent, 10) || 20;
+            params.sessionsBeforeLong = parseInt(document.getElementById('pomoSessionsValue').textContent, 10) || 4;
         }
         sessionStorage.setItem('ghostSession', JSON.stringify(params));
         closeModal(startModal);
@@ -637,26 +689,40 @@ function initializeModals() {
 
     startModal?.addEventListener('click', (e) => { if (e.target === startModal) closeModal(startModal); });
 
-    // Add Task modal
+    // Confirm Add Task
     document.getElementById('confirmAddTask')?.addEventListener('click', () => {
         const title = document.getElementById('addTaskTitle')?.value?.trim();
         if (!title) return alert('Please enter a title');
+
         const startVal = document.getElementById('addTaskStart')?.value || '';
         const dateStr = startVal.slice(0, 10);
+
+        const activeLoadBtn = document.querySelector('.load-btn.active');
+        const load = activeLoadBtn ? activeLoadBtn.dataset.load : 'medium';
+
         const task = {
             title,
             desc: document.getElementById('addTaskDesc')?.value?.trim() || '',
             start: startVal,
-            end: document.getElementById('addTaskEnd')?.value || ''
+            end: document.getElementById('addTaskEnd')?.value || '',
+            load
         };
+
+        const source = document.getElementById('addTaskModal').dataset.source || 'todo';
+
         saveTaskFromAddModal(dateStr, task);
         closeAddTaskModal();
         initializeTodo();
-        if (typeof renderCalendar === 'function') renderCalendar(smallCalYear, smallCalMonth);
-        // Reopen start modal with task list
-        openModal(startModal);
-        showStartModalTaskList();
+        if (typeof renderCalendar === 'function') {
+            renderCalendar(smallCalYear, smallCalMonth);
+        }
+
+        if (source === 'smartstart') {
+            openModal(startModal);
+            showStartModalTaskList();
+        }
     });
+
     document.getElementById('cancelAddTask')?.addEventListener('click', closeAddTaskModal);
     addTaskModal?.addEventListener('click', (e) => { if (e.target === addTaskModal) closeAddTaskModal(); });
 
@@ -666,11 +732,12 @@ function initializeModals() {
 
     document.getElementById('brainFogStartTask')?.addEventListener('click', function() {
         if (typeof recordBrainFogUsed === 'function') recordBrainFogUsed();
-        updateStateBar(); // refresh dashboard immediately
+        updateStateBar();
         closeModal(brainFogModal);
         startBtn?.click();
     });
 
+    // Quick Challenge
     if (quickChallengeBtn) quickChallengeBtn.addEventListener('click', () => openModal(quickChallengeModal));
     quickChallengeModal?.addEventListener('click', (e) => { if (e.target === quickChallengeModal) closeModal(quickChallengeModal); });
 
@@ -693,13 +760,40 @@ function initializeModals() {
         }, 1000);
     });
 
-    if (studyBuddyBtn) studyBuddyBtn.addEventListener('click', () => openModal(studyBuddyModal));
-    studyBuddyModal?.addEventListener('click', (e) => { if (e.target === studyBuddyModal) closeModal(studyBuddyModal); });
-    document.getElementById('findBuddyBtn')?.addEventListener('click', () => {
-        closeModal(studyBuddyModal);
-        alert('Study Buddy coming soon! Match with someone studying now.');
+    // Load button toggle
+    document.querySelectorAll('.load-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.load-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Stepper controls
+    function setupStepper(btn, delta) {
+        const targetId = btn.dataset.target;
+        const valueSpan = document.getElementById(targetId + 'Value');
+        let current = parseInt(valueSpan.textContent, 10);
+        let min = 1, max = 60;
+        if (targetId === 'pomoFocus') { min = 10; max = 60; }
+        else if (targetId === 'pomoBreak') { min = 1; max = 15; }
+        else if (targetId === 'pomoLongBreak') { min = 5; max = 45; }
+        else if (targetId === 'pomoSessions') { min = 2; max = 8; }
+
+        let newVal = current + delta;
+        if (newVal >= min && newVal <= max) {
+            valueSpan.textContent = newVal;
+        }
+    }
+
+    document.querySelectorAll('.stepper-btn.plus').forEach(btn => {
+        btn.addEventListener('click', () => setupStepper(btn, 1));
+    });
+    document.querySelectorAll('.stepper-btn.minus').forEach(btn => {
+        btn.addEventListener('click', () => setupStepper(btn, -1));
     });
 }
+
 
 function addTodo() {
     const todoList = document.getElementById('todoList');

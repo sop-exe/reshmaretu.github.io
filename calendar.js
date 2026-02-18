@@ -1,4 +1,5 @@
 // Simple full calendar page script with add-task modal and storage
+// Includes completion check from todoItems and finished styling
 
 const calendarLarge = (function(){
     const grid = document.getElementById('calendarGridLarge');
@@ -37,11 +38,17 @@ const calendarLarge = (function(){
         obj[dateStr] = obj[dateStr] || [];
         obj[dateStr].push(task);
         localStorage.setItem('calendarTasks', JSON.stringify(obj));
-        // Also add a todo item for the home page
+
+        // Also add a todo item for the home page with load
         try {
             const rawTodos = localStorage.getItem('todoItems');
             const todos = rawTodos ? JSON.parse(rawTodos) : [];
-            todos.push({ title: task.title, date: dateStr, completed: false });
+            todos.push({
+                title: task.title,
+                date: dateStr,
+                completed: false,
+                load: task.load  // store load
+            });
             localStorage.setItem('todoItems', JSON.stringify(todos));
         } catch (e) {
             console.error('Could not save todo item', e);
@@ -57,10 +64,12 @@ const calendarLarge = (function(){
 
         const firstDay = new Date(year, month, 1).getDay();
         const lastDate = new Date(year, month+1, 0).getDate();
-        // previous month filler
         const prevLastDate = new Date(year, month, 0).getDate();
 
-        // show weekday labels
+        // Get todoItems once to check completion status
+        const todoItems = JSON.parse(localStorage.getItem('todoItems') || '[]');
+
+        // Show weekday labels
         const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         days.forEach(d=>{
             const label = document.createElement('div');
@@ -70,7 +79,7 @@ const calendarLarge = (function(){
             grid.appendChild(label);
         });
 
-        // previous month days
+        // Previous month days
         for (let i = firstDay-1; i>=0; i--){
             const cell = document.createElement('div');
             cell.className = 'calendar-day-large other-month';
@@ -78,12 +87,14 @@ const calendarLarge = (function(){
             grid.appendChild(cell);
         }
 
+        // Current month days
         for (let d=1; d<=lastDate; d++){
             const date = new Date(year, month, d);
             const dateStr = formatYMD(date);
             const cell = document.createElement('div');
             cell.className = 'calendar-day-large';
             cell.dataset.date = dateStr;
+
             const dateNum = document.createElement('div');
             dateNum.className = 'date-num';
             dateNum.textContent = d;
@@ -99,27 +110,31 @@ const calendarLarge = (function(){
             });
             cell.appendChild(addBtn);
 
+            // Tasks container
             const tasksWrap = document.createElement('div');
             tasksWrap.className = 'tasks';
+
             const tasks = loadTasksFor(dateStr);
-            tasks.forEach(t=>{
+            tasks.forEach(t => {
+                // Find matching todo item by title and date
+                const todo = todoItems.find(item => item.title === t.title && item.date === dateStr);
+                const isFinished = todo ? todo.completed : false;
+
                 const pill = document.createElement('div');
-                pill.className = 'task-pill';
+                pill.className = `task-pill ${isFinished ? 'finished' : ''}`;
                 pill.textContent = t.title;
-                pill.style.cursor = 'pointer';
-                pill.title = 'Open in To-do';
+                pill.title = isFinished ? 'Completed' : 'Open in To-do';
                 pill.addEventListener('click', ()=>{
-                    // Go to home and anchor to todo panel
                     window.location.href = 'index.html#todoPanel';
                 });
                 tasksWrap.appendChild(pill);
             });
-            cell.appendChild(tasksWrap);
 
+            cell.appendChild(tasksWrap);
             grid.appendChild(cell);
         }
 
-        // next month filler to complete rows
+        // Next month filler to complete rows
         const totalCells = firstDay + lastDate;
         const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
         for (let i=1;i<=remaining;i++){
@@ -132,10 +147,14 @@ const calendarLarge = (function(){
 
     function openModalFor(dateStr){
         selDate = dateStr;
+
+        // Reset load selector to default (Medium)
+        document.querySelectorAll('.load-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector('.load-btn.medium')?.classList.add('active');
+
         modal.classList.add('show');
         modal.setAttribute('aria-hidden','false');
         titleInput.focus();
-        // prefill start/end with date
         const start = dateStr + 'T09:00';
         const end = dateStr + 'T10:00';
         startInput.value = start;
@@ -152,14 +171,29 @@ const calendarLarge = (function(){
         selDate = null;
     }
 
+    // Load button toggle functionality
+    document.querySelectorAll('.load-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.load-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
     confirmBtn.addEventListener('click', ()=>{
         const title = titleInput.value.trim();
         if (!title) return alert('Please enter a title');
+
+        // Get selected load
+        const activeLoadBtn = document.querySelector('.load-btn.active');
+        const load = activeLoadBtn ? activeLoadBtn.dataset.load : 'medium';
+
         const task = {
             title,
             desc: descInput.value.trim(),
             start: startInput.value,
-            end: endInput.value
+            end: endInput.value,
+            load: load  // include load
         };
         saveTask(selDate, task);
         closeModal();
@@ -173,7 +207,6 @@ const calendarLarge = (function(){
     prevBtn.addEventListener('click', ()=>{ current = new Date(current.getFullYear(), current.getMonth()-1, 1); render(); });
     nextBtn.addEventListener('click', ()=>{ current = new Date(current.getFullYear(), current.getMonth()+1, 1); render(); });
 
-    // If hash indicates add, open modal for today
     window.addEventListener('DOMContentLoaded', ()=>{
         render();
         if (location.hash === '#add'){
