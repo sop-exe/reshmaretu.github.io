@@ -3,153 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyBuddy</title>
+    <title>StudyBuddy — Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ephesis&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="app-container">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h1 class="logo">StudyBuddy</h1>
-                <p class="tagline">Stay motivated & productive</p>
+                <img src="resources/sblogo.png" alt="StudyBuddy Logo" class="logo">
             </div>
 
             <nav class="sidebar-nav">
                 <div class="nav-section">
                     <h4 class="nav-title">MAIN MENU</h4>
                     <ul class="nav-links">
-                        <li><a href="index.html" class="nav-link active">🏠 Home</a></li>
+                        <li><a href="index.html" class="nav-link active">🏠 Dashboard</a></li>
                         <li><a href="calendar.html" class="nav-link">📅 Calendar</a></li>
-                        <li><a href="ghost.html" class="nav-link" id="sidebarGhostLink">👻 Ghost Mode</a></li>
-                        <li><a href="insights.html" class="nav-link">📊 Insights</a></li>
+                        <li><a href="ghost.html" class="nav-link">✨ FlowState</a></li>
+                        <li><a href="insights.html" class="nav-link">📊 Neural Analytics</a></li>
                     </ul>
                 </div>
-
                 <div class="nav-section">
                     <h4 class="nav-title">ACCOUNT</h4>
                     <ul class="nav-links">
                         <li><a href="#" class="nav-link">👤 Profile</a></li>
                         <li><a href="#" class="nav-link">⚙️ Settings</a></li>
                         <li><a href="#" class="nav-link">🚪 Logout</a></li>
-                        <li><a href="#" id="resetAllBtn" class="nav-link">♻️ Reset Data</a></li>
                     </ul>
                 </div>
             </nav>
-
-            <div class="user-profile">
-                <img src="bee.jpg" alt="Profile" class="profile-img">
-                <div class="profile-info">
-                    <h3>Laevatain</h3>
-                    <p>Web Developer</p>
-                </div>
-            </div>
         </aside>
 
         <main class="main-content">
-            <!-- Motivation Wall (Full State) -->
-            <div class="motivation-full" id="motivationFull">
-                <div class="motivation-header">
-                    <div class="header-left">
-                        <span class="icon-circle">✨</span>
-                        <div class="header-text">
-                            <h2>Motivation Wall</h2>
-                            <p class="subtitle">Get inspired daily</p>
-                        </div>
-                    </div>
-                    <button class="refresh-btn" id="refreshBtn">🔄 Refresh</button>
-                </div>
+            <header class="top-bar">
+    <div class="top-bar-left">
+        <h1 class="logo-text">StudyBuddy</h1>   <!-- replaces greeting -->
+    </div>
+    <div class="top-bar-right">
+        <div class="user-profile">
+            <button class="notification-btn" aria-label="Notifications">🔔</button>
+            <span>User</span>
+            <div class="profile-pic"></div>
+        </div>
+    </div>
+</header>
 
-                <div class="motivation-card">
-                    <span class="large-icon">✨</span>
-                    <blockquote class="motivation-quote" id="motivationQuote">
-                        "What lies behind us and what lies before us are tiny matters compared to what lies within us."
-                    </blockquote>
-                    <p class="quote-author" id="quoteAuthor">— Ralph Waldo Emerson</p>
-                    <div class="motivation-loader" aria-hidden="true">
-                        <div class="bar"></div>
+            <section class="state-bar">
+                <div class="state-item">
+                    <span class="state-label">Focus Score</span>
+                    <div class="progress-container">
+                        <div id="focusBar" class="progress-fill" style="width: 0%"></div>
                     </div>
+                    <span id="focusScoreValue" class="state-value">0</span>
                 </div>
+                <div class="state-divider"></div>
+                <div class="state-item" id="openMoodModal">
+                    <span class="state-label">Mood Status</span>
+                    <span id="currentMoodEmoji" class="state-value">😐</span>
+                </div>
+            </section>
 
-                <!-- State Bar -->
-               <div class="state-bar">
-    <span class="state-item">
-        <span class="state-label">🧠 Focus:</span>
-        <span class="focus-bar">█████░░░</span>
-        <span id="focusLabel">Moderate</span>
-        <span id="focusTrend" class="trend-indicator"></span>
-    </span>
-    <span class="state-item">
-        <span id="moodLabel">😄 Good</span>
-    </span>
-    <span class="state-item">
-        ⚠️ Burnout: <span id="burnoutLabel">Low</span>
-        <span id="burnoutTrend" class="trend-indicator"></span>
-    </span>
+            <section class="sparks-feed" id="sparksFeed">
+    <div class="sparks-header" onclick="toggleSparks()">
+        <span>✨ Sparks Feed</span>
+        <small>(Click to expand)</small>
+    </div>
+    <div class="sparks-content" id="quoteContainer">
+        <p class="quote-text" id="motivationQuote">"Small steps lead to big destinations."</p>
+        <cite class="quote-author" id="motivationAuthor">— Anonymous</cite>
+    </div>
+</section>
+
+<!-- "Ready to be productive?" heading -->
+<h2 class="ready-heading">Ready to be productive?</h2>
+
+            <section class="action-grid">
+                <button class="action-card" id="activeRecallBtn"> <div class="action-icon">⚡</div>
+        <span>Active Recall</span>
+    </button>
+    <button class="action-card" id="enterFlowstateBtn"> <div class="action-icon">🚀</div>
+        <span>Enter Flowstate</span>
+    </button>
+    <button class="action-card" id="mentalResetBtn">
+        <div class="action-icon">🧠</div>
+        <span>Mental Reset</span>
+    </button>
+</section>
+
+           <div class="widgets-container">
+    <!-- Left column: Mini Calendar -->
+    <div class="widget-card mini-calendar">
+        <div class="calendar-header">
+            <button id="prevMonth">‹</button>
+            <span id="miniMonthLabel">February 2026</span>
+            <button id="nextMonth">›</button>
+        </div>
+        <div class="calendar-mini-grid" id="miniCalendarGrid"></div>
+        <a href="calendar.html" class="full-cal-link">View Full Calendar →</a>
+    </div>
+
+    <!-- Right column wrapper (stacked widgets) -->
+    <div class="right-column-widgets">
+        <!-- ChronoFocus (Pomodoro) -->
+        <div class="widget-card chrono-focus">
+            <h3>ChronoFocus</h3>
+            <div class="timer-display">25:00</div>
+            <div class="timer-controls">
+                <button class="btn btn-yes">Start</button>
+                <button class="btn btn-no">Reset</button>
+            </div>
+        </div>
+
+        <!-- To‑Do Widget -->
+        <div class="widget-card todo-widget">
+            <div class="widget-header">
+                <img src="todo.svg" class="icon" alt="To-Do">
+                <h3>Task</h3>
+                <button class="add-task-btn" id="addTodoBtn">+</button>
+            </div>
+            <ul id="todoList" class="todo-list"></ul>
+        </div>
+    </div>
 </div>
-
-                <!-- Smart Start (Main Action) -->
-                <div class="smart-start-section">
-                    <button class="btn btn-start-now" id="startSessionBtn">
-                        🎯 Start Study Session <span class="btn-arrow">⚡</span>
-                    </button>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="quick-actions">
-                    <button class="quick-action-btn" id="quickChallengeBtn">⚡ Quick Challenge</button>
-                    <button class="quick-action-btn" id="clearBrainBtn">🧼 Clear Brain</button>
-                </div>
-
-                <!-- Calendar & To-Do Grid -->
-                <div class="content-grid">
-                    <!-- Calendar -->
-                    <div class="calendar-panel">
-                        <div class="panel-header">
-                            <span class="panel-icon">📅</span>
-                            <h3>Calendar</h3>
-                        </div>
-                        <div class="calendar-controls">
-                            <button class="month-btn" id="prevMonthBtn">‹</button>
-                            <span class="month-display" id="monthDisplay">February 2026</span>
-                            <button class="month-btn" id="nextMonthBtn">›</button>
-                        </div>
-                        <div class="calendar-wrapper">
-                            <div class="calendar-grid" id="calendarGrid"></div>
-                        </div>
-                        <a href="calendar.html" class="full-calendar-link">full calendar</a>
-                    </div>
-
-                    <!-- To-Do -->
-                    <div class="todo-panel" id="todoPanel">
-                        <div class="panel-header" style="display:flex;align-items:center;gap:12px;">
-                            <span class="panel-icon">✓</span>
-                            <h3 style="margin:0;">To-do</h3>
-                            <button class="add-btn" id="addTodoBtn" title="Add task">+</button>
-                        </div>
-                        <div class="todo-wrapper">
-                            <ul class="todo-list" id="todoList">
-                                    <li class="todo-item">
-                                        <div class="todo-left"><span class="todo-title">Set profile description</span></div>
-                                        <div class="todo-actions"><button class="btn-finish">Mark as finished</button><button class="btn-delete">🗑️</button></div>
-                                    </li>
-                                    <li class="todo-item">
-                                        <div class="todo-left"><span class="todo-title">Review study materials</span></div>
-                                        <div class="todo-actions"><button class="btn-finish">Mark as finished</button><button class="btn-delete">🗑️</button></div>
-                                    </li>
-                                    <li class="todo-item">
-                                        <div class="todo-left"><span class="todo-title">Complete assignments</span></div>
-                                        <div class="todo-actions"><button class="btn-finish">Mark as finished</button><button class="btn-delete">🗑️</button></div>
-                                    </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
             </div>
         </main>
     </div>

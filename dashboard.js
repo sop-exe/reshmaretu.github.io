@@ -49,6 +49,7 @@ let _noPresetIndex = 0;
 const ROTATION_INTERVAL = 12;
 let smallCalYear = null;
 let smallCalMonth = null;
+let miniDate = new Date();
 
 // Global references for add task modal validation
 let addTitle, addDesc, addTitleCount, addDescCount, addTitleError, confirmAddBtn;
@@ -63,15 +64,10 @@ document.addEventListener('DOMContentLoaded', function() {
     addTitleError = document.getElementById('addTaskTitleError');
     confirmAddBtn = document.getElementById('confirmAddTask');
 
-    // Attach validation listeners
-    if (addTitle) {
-        addTitle.addEventListener('input', validateAddTaskTitle);
-    }
-    if (addDesc) {
-        addDesc.addEventListener('input', () => {
-            addDescCount.textContent = addDesc.value.length;
-        });
-    }
+    if (addTitle) addTitle.addEventListener('input', validateAddTaskTitle);
+    if (addDesc) addDesc.addEventListener('input', () => {
+        addDescCount.textContent = addDesc.value.length;
+    });
 
     initializeMotivation();
     initializeCalendar();
@@ -80,12 +76,49 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeStats();
     startRotation();
 
+    // Action buttons
+    document.getElementById('activeRecallBtn')?.addEventListener('click', activeRecall);
+    document.getElementById('enterFlowstateBtn')?.addEventListener('click', enterFlowstate);
+    document.getElementById('mentalResetBtn')?.addEventListener('click', mentalReset);
+
     document.getElementById('resetAllBtn')?.addEventListener('click', function() {
-        const ok = confirm('Reset all StudyBuddy data (stats, tasks, sessions)? This cannot be undone.');
-        if (!ok) return;
-        resetAllData();
+        if (confirm('Reset all StudyBuddy data (stats, tasks, sessions)? This cannot be undone.')) {
+            resetAllData();
+        }
     });
+
+    // Add Todo button
+    document.getElementById('addTodoBtn')?.addEventListener('click', () => {
+        openAddTaskModal(undefined, 'todo');
+    });
+
+    // Mood status click
+    document.getElementById('openMoodModal')?.addEventListener('click', () => {
+        document.getElementById('moodModal')?.classList.add('show');
+    });
+
+    initializeSparksFeed();
+    renderMiniCalendar();
+
+    // Mini calendar navigation
+    document.getElementById('prevMonth')?.addEventListener('click', () => {
+        miniDate.setMonth(miniDate.getMonth() - 1);
+        renderMiniCalendar();
+    });
+    document.getElementById('nextMonth')?.addEventListener('click', () => {
+        miniDate.setMonth(miniDate.getMonth() + 1);
+        renderMiniCalendar();
+    });
+
+    updateStateBar();
+
+    document.getElementById('sparksFeed')?.classList.add('expanded');
 });
+
+// ==================== Sparks Feed Toggle ====================
+function toggleSparks() {
+    document.getElementById('sparksFeed')?.classList.toggle('expanded');
+}
 
 // ==================== Motivation Functions ====================
 function initializeMotivation() {
@@ -106,8 +139,10 @@ function restartLoader() {
 function updateMotivationContent() {
     const quoteIndex = Math.floor(Math.random() * motivationPresets.quotes.length);
     const quote = motivationPresets.quotes[quoteIndex];
-    document.getElementById('motivationQuote').textContent = `"${quote.text}"`;
-    document.getElementById('quoteAuthor').textContent = `— ${quote.author}`;
+    const quoteEl = document.getElementById('motivationQuote');
+    const authorEl = document.getElementById('motivationAuthor');
+    if (quoteEl) quoteEl.textContent = `"${quote.text}"`;
+    if (authorEl) authorEl.textContent = `— ${quote.author}`;
     restartLoader();
 }
 
@@ -151,9 +186,9 @@ function initializeCalendar() {
 
 function renderCalendar(year, month) {
     const calendarGrid = document.getElementById('calendarGrid');
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                        'July', 'August', 'September', 'October', 'November', 'December'];
-    const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    if (!calendarGrid) return;
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const dayNames = ['S','M','T','W','T','F','S'];
     
     calendarGrid.innerHTML = '';
     document.getElementById('monthDisplay').textContent = `${monthNames[month]} ${year}`;
@@ -255,29 +290,55 @@ function initializeTodo() {
     filteredItems.forEach((item, idx) => {
         const li = document.createElement('li');
         li.className = `todo-item ${item.completed ? 'is-completed' : ''}`;
+        
+        // Build left part with check icon
+        let leftHtml = '';
+        if (item.completed) {
+            // Finished: show a static check mark
+            leftHtml = `
+                <div class="todo-left">
+                    <span class="todo-check">✅</span>
+                    <span class="todo-title">${escapeHtml(item.title)}</span>
+                    ${item.date ? '<span class="todo-date"> — ' + item.date + '</span>' : ''}
+                </div>
+            `;
+        } else {
+            // Unfinished: show a clickable check button
+            leftHtml = `
+                <div class="todo-left">
+                    <span class="todo-check">
+                        <button class="btn-finish" data-index="${idx}">✓</button>
+                    </span>
+                    <span class="todo-title">${escapeHtml(item.title)}</span>
+                    ${item.date ? '<span class="todo-date"> — ' + item.date + '</span>' : ''}
+                </div>
+            `;
+        }
+
         li.innerHTML = `
-            <div class="todo-left">
-                <span class="todo-title">${item.title}</span>
-                ${item.date ? '<span class="todo-date"> — ' + item.date + '</span>' : ''}
-            </div>
+            ${leftHtml}
             <div class="todo-actions">
-                <button class="btn-finish">${item.completed ? '✔ Finished' : 'Mark as finished'}</button>
-                <button class="btn-delete">🗑️</button>
+                <button class="btn-delete" data-index="${idx}">🗑️</button>
             </div>
         `;
         todoListEl.appendChild(li);
 
-        li.querySelector('.btn-finish').addEventListener('click', () => {
-            if (item.completed) return;
-            if (!confirm('Mark as finished?')) return;
-            
-            filteredItems[idx].completed = true;
-            filteredItems[idx].finishedAt = Date.now();
-            localStorage.setItem('todoItems', JSON.stringify(filteredItems));
-            initializeTodo();
-        });
+        // Attach finish event if not completed
+        if (!item.completed) {
+            li.querySelector('.btn-finish')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!confirm('Mark as finished?')) return;
+                
+                filteredItems[idx].completed = true;
+                filteredItems[idx].finishedAt = Date.now();
+                localStorage.setItem('todoItems', JSON.stringify(filteredItems));
+                initializeTodo(); // re-render
+            });
+        }
 
-        li.querySelector('.btn-delete').addEventListener('click', () => {
+        // Delete event
+        li.querySelector('.btn-delete').addEventListener('click', (e) => {
+            e.stopPropagation();
             const task = filteredItems[idx];
             const isCompleted = task.completed;
             const message = isCompleted 
@@ -301,6 +362,13 @@ function initializeTodo() {
             if (typeof renderCalendar === 'function') renderCalendar(smallCalYear, smallCalMonth);
         });
     });
+}
+
+// Simple escape function
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // ==================== Stats (Focus, Mood, Burnout) ====================
@@ -334,90 +402,27 @@ function initializeStats() {
     });
 
     updateStateBar();
-
-    const moodLabelEl = document.getElementById('moodLabel');
-    if (moodLabelEl && moodModal) {
-        moodLabelEl.closest('.state-item')?.addEventListener('click', () => {
-            if (!hasMoodToday()) {
-                moodModal.classList.add('show');
-                moodModal.setAttribute('aria-hidden', 'false');
-            } else {
-                alert('You already logged your mood today.');
-            }
-        });
-    }
 }
 
 function updateStateBar() {
-    if (typeof getFocusScore !== 'function' || typeof getMoodScore !== 'function' || typeof getBurnoutScore !== 'function') return;
-    if (typeof getFocusLabel !== 'function' || typeof getMoodLabel !== 'function' || typeof getBurnoutLabel !== 'function') return;
+    if (typeof getFocusScore !== 'function' || typeof getStats !== 'function') return;
 
     const focusScore = getFocusScore();
-    const moodScore = getMoodScore();
-    const burnoutScore = getBurnoutScore();
+    const stats = getStats();
 
-    const focusLabel = getFocusLabel(focusScore);
-    const moodLabel = getMoodLabel(moodScore);
-    const burnoutLabel = getBurnoutLabel(burnoutScore);
+    const focusBar = document.getElementById('focusBar');
+    const focusValue = document.getElementById('focusScoreValue');
+    if (focusBar) focusBar.style.width = focusScore + '%';
+    if (focusValue) focusValue.innerText = focusScore;
 
-    const barFilled = Math.round((focusScore / 100) * 8);
-    const barEmpty = 8 - barFilled;
-    const focusBarStr = '█'.repeat(barFilled) + '░'.repeat(barEmpty);
-
-    const fl = document.getElementById('focusLabel');
-    const ml = document.getElementById('moodLabel');
-    const bl = document.getElementById('burnoutLabel');
-
-    if (fl) fl.textContent = focusLabel + ' (' + focusScore + ')';
-    if (ml) {
-        const moodEmoji = moodLabel === 'Good' ? '😄' : moodLabel === 'Okay' ? '😐' : moodLabel === 'Bad' ? '😞' : '';
-        ml.textContent = (moodEmoji ? moodEmoji + ' ' : '') + moodLabel;
+    const moodEmoji = document.getElementById('currentMoodEmoji');
+    if (moodEmoji && stats.mood_entries && stats.mood_entries.length > 0) {
+        const latest = stats.mood_entries[stats.mood_entries.length - 1];
+        const emoji = latest.value === 3 ? '😄' : latest.value === 2 ? '😐' : '😞';
+        moodEmoji.innerText = emoji;
+    } else {
+        moodEmoji.innerText = '😐'; // default
     }
-    if (bl) bl.textContent = burnoutLabel + ' (' + burnoutScore + ')';
-    document.querySelectorAll('.focus-bar').forEach(el => { el.textContent = focusBarStr; });
-
-    const alertEl = document.getElementById('burnoutAlert');
-    if (alertEl) {
-        alertEl.style.display = (burnoutScore >= 31) ? 'block' : 'none';
-        if (burnoutScore >= 31) {
-            alertEl.textContent = burnoutScore >= 61
-                ? '⚠️ You might be getting tired. Try a lighter task.'
-                : '⚠️ You\'ve studied a lot. Try a light task.';
-        }
-    }
-
-    try {
-        const pushHistory = (key, value) => {
-            const raw = localStorage.getItem(key);
-            const arr = raw ? JSON.parse(raw) : [];
-            if (arr.length === 0 || arr[arr.length - 1] !== value) arr.push(value);
-            while (arr.length > 10) arr.shift();
-            localStorage.setItem(key, JSON.stringify(arr));
-            return arr;
-        };
-        const fHist = pushHistory('focusHistory', focusScore);
-        const bHist = pushHistory('burnoutHistory', burnoutScore);
-        const fTrendEl = document.getElementById('focusTrend');
-        const bTrendEl = document.getElementById('burnoutTrend');
-        if (fTrendEl) {
-            if (fHist.length >= 2) {
-                const prev = fHist[fHist.length - 2], last = fHist[fHist.length - 1];
-                fTrendEl.textContent = last > prev ? '▲' : last < prev ? '▼' : '→';
-                fTrendEl.title = `Focus: ${prev} → ${last}`;
-            } else {
-                fTrendEl.textContent = '';
-            }
-        }
-        if (bTrendEl) {
-            if (bHist.length >= 2) {
-                const prev = bHist[bHist.length - 2], last = bHist[bHist.length - 1];
-                bTrendEl.textContent = last > prev ? '▲' : last < prev ? '▼' : '→';
-                bTrendEl.title = `Burnout: ${prev} → ${last}`;
-            } else {
-                bTrendEl.textContent = '';
-            }
-        }
-    } catch (e) {}
 }
 
 window.addEventListener('storage', (e) => {
@@ -454,11 +459,10 @@ function openAddTaskModal(forDate, source = 'todo') {
     modal.classList.add('show');
     modal.setAttribute('aria-hidden', 'false');
 
-    // Reset validation and show error immediately because field is empty
     if (addTitle) {
         addTitle.value = '';
         addTitleCount.textContent = '0';
-        addTitleError.style.display = 'block'; // Show error immediately
+        addTitleError.style.display = 'block';
         confirmAddBtn.disabled = true;
     }
     if (addDesc) {
@@ -538,7 +542,7 @@ function showStartModalTaskList() {
 
             div.innerHTML = `
                 <span class="load-badge">${loadIcon} ${task.load || 'medium'}</span>
-                <span class="task-title-text">${task.title}</span>
+                <span class="task-title-text">${escapeHtml(task.title)}</span>
             `;
 
             div.addEventListener('click', () => {
@@ -547,7 +551,7 @@ function showStartModalTaskList() {
 
                 const loadIcons = { light: '⚪', medium: '🟡', heavy: '🔴' };
                 const loadIcon = loadIcons[task.load] || '🟡';
-                document.getElementById('chosenTaskDisplay').innerHTML = `${loadIcon} ${task.load} · 📘 ${task.title}`;
+                document.getElementById('chosenTaskDisplay').innerHTML = `${loadIcon} ${task.load} · 📘 ${escapeHtml(task.title)}`;
 
                 document.getElementById('smartStartTaskList').style.display = 'none';
                 document.getElementById('smartStartTimerStep').style.display = 'block';
@@ -630,12 +634,13 @@ function validateAddTaskTitle() {
 // ==================== Modals ====================
 function initializeModals() {
     const startModal = document.getElementById('startSessionModal');
-    const startBtn = document.getElementById('startSessionBtn');
     const addTaskModal = document.getElementById('addTaskModal');
     const brainFogModal = document.getElementById('brainFogModal');
-    const clearBrainBtn = document.getElementById('clearBrainBtn');
     const quickChallengeModal = document.getElementById('quickChallengeModal');
-    const quickChallengeBtn = document.getElementById('quickChallengeBtn');
+    const challengeStartBtn = document.getElementById('challengeStartBtn');
+    const ghostConfirmModal = document.getElementById('ghostConfirmModal');
+    const ghostConfirmBack = document.getElementById('ghostConfirmBack');
+    const ghostConfirmStart = document.getElementById('ghostConfirmStart');
 
     const openModal = (modal) => {
         if (modal) { modal.classList.add('show'); modal.setAttribute('aria-hidden', 'false'); }
@@ -644,34 +649,20 @@ function initializeModals() {
         if (modal) { modal.classList.remove('show'); modal.setAttribute('aria-hidden', 'true'); }
     };
 
-    // Sidebar Ghost Mode link – open confirmation modal
+    // Sidebar Ghost Mode link (if exists)
     document.getElementById('sidebarGhostLink')?.addEventListener('click', function(e) {
         e.preventDefault();
-        const ghostConfirmModal = document.getElementById('ghostConfirmModal');
         openModal(ghostConfirmModal);
-        const startModal = document.getElementById('startSessionModal');
-        startModal.dataset.fromSidebar = 'true';
+        if (startModal) startModal.dataset.fromSidebar = 'true';
     });
 
-    // Smart Start flow
-    if (startBtn) {
-        startBtn.addEventListener('click', function() {
-            openModal(startModal);
-            startModal.dataset.fromSidebar = 'false';
-            showStartModalTaskList();
-        });
-    }
-
+    // Smart Start add new
     document.getElementById('smartStartAddNewBtn')?.addEventListener('click', () => {
         closeModal(startModal);
         openAddTaskModal(undefined, 'smartstart');
     });
 
-    document.getElementById('addTaskFromSmartStart')?.addEventListener('click', () => {
-        closeModal(startModal);
-        openAddTaskModal(undefined, 'smartstart');
-    });
-
+    // Session type toggle
     document.querySelectorAll('input[name="sessionType"]').forEach(radio => {
         radio.addEventListener('change', () => {
             const isPomo = document.querySelector('input[name="sessionType"]:checked')?.value === 'pomodoro';
@@ -786,38 +777,34 @@ function initializeModals() {
     document.getElementById('cancelAddTask')?.addEventListener('click', closeAddTaskModal);
     addTaskModal?.addEventListener('click', (e) => { if (e.target === addTaskModal) closeAddTaskModal(); });
 
-    if (clearBrainBtn) clearBrainBtn.addEventListener('click', () => openModal(brainFogModal));
-    brainFogModal?.addEventListener('click', (e) => { if (e.target === brainFogModal) closeModal(brainFogModal); });
-
+    // Brain Fog modal
     document.getElementById('brainFogStartTask')?.addEventListener('click', function() {
         if (typeof recordBrainFogUsed === 'function') recordBrainFogUsed();
         updateStateBar();
         closeModal(brainFogModal);
-        startBtn?.click();
+        enterFlowstate(); // directly open flowstate modal
     });
 
-    if (quickChallengeBtn) quickChallengeBtn.addEventListener('click', () => openModal(quickChallengeModal));
-    quickChallengeModal?.addEventListener('click', (e) => { if (e.target === quickChallengeModal) closeModal(quickChallengeModal); });
+    // Quick Challenge modal
+    if (challengeStartBtn) {
+        challengeStartBtn.addEventListener('click', function() {
+            const challenges = [
+                { q: 'What is the powerhouse of the cell?', a: 'mitochondria' },
+                { q: 'What is 7 × 8?', a: '56' },
+                { q: 'Name one planet in our solar system.', a: 'earth' }
+            ];
+            const c = challenges[Math.floor(Math.random() * challenges.length)];
+            document.getElementById('challengeQuestion').textContent = c.q;
+            let sec = 60;
+            const timer = setInterval(() => {
+                sec--;
+                document.getElementById('challengeTimer').textContent = '0:' + sec.toString().padStart(2, '0');
+                if (sec <= 0) { clearInterval(timer); document.getElementById('challengeTimer').textContent = 'Done!'; }
+            }, 1000);
+        });
+    }
 
-    const challengeQuestion = document.getElementById('challengeQuestion');
-    const challengeTimer = document.getElementById('challengeTimer');
-    const challengeStartBtn = document.getElementById('challengeStartBtn');
-    const challenges = [
-        { q: 'What is the powerhouse of the cell?', a: 'mitochondria' },
-        { q: 'What is 7 × 8?', a: '56' },
-        { q: 'Name one planet in our solar system.', a: 'earth' }
-    ];
-    challengeStartBtn?.addEventListener('click', function() {
-        const c = challenges[Math.floor(Math.random() * challenges.length)];
-        challengeQuestion.textContent = c.q;
-        let sec = 60;
-        const t = setInterval(() => {
-            sec--;
-            challengeTimer.textContent = '0:' + sec.toString().padStart(2, '0');
-            if (sec <= 0) { clearInterval(t); challengeTimer.textContent = 'Done!'; }
-        }, 1000);
-    });
-
+    // Load buttons
     document.querySelectorAll('.load-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -850,10 +837,7 @@ function initializeModals() {
         btn.addEventListener('click', () => setupStepper(btn, -1));
     });
 
-    const ghostConfirmModal = document.getElementById('ghostConfirmModal');
-    const ghostConfirmBack = document.getElementById('ghostConfirmBack');
-    const ghostConfirmStart = document.getElementById('ghostConfirmStart');
-
+    // Ghost confirmation modal
     if (ghostConfirmBack) {
         ghostConfirmBack.addEventListener('click', () => closeModal(ghostConfirmModal));
     }
@@ -871,69 +855,89 @@ function initializeModals() {
     }
 }
 
-function addTodo() {
-    const todoList = document.getElementById('todoList');
-    const li = document.createElement('li');
-    li.className = 'todo-item';
-    li.innerHTML = `
-        <input type="checkbox" class="todo-checkbox">
-        <span>New task</span>
-    `;
-
-    li.querySelector('.todo-checkbox').addEventListener('change', function() {
-        // Toggle check
-    });
-
-    todoList.insertBefore(li, todoList.firstChild);
-}
-
+// ==================== Utility ====================
 function resetAllData() {
-    const keys = ['user_stats', 'todoItems', 'calendarTasks', 'events', 'focusHistory', 'burnoutHistory', 'ghostSession', 'study_sessions'];
-    keys.forEach(k => localStorage.removeItem(k));
-    localStorage.removeItem('user_stats');
+    const keys = ['user_stats', 'todoItems', 'calendarTasks', 'events', 'ghostSession', 'study_sessions'];
+keys.forEach(k => localStorage.removeItem(k));
     try { initializeTodo(); } catch (e) { }
     try { if (typeof renderCalendar === 'function') renderCalendar(smallCalYear, smallCalMonth); } catch (e) { }
     try { updateStateBar(); } catch (e) { }
     alert('All data reset.');
 }
 
-function deleteTask(taskId, taskTitle) {
-    let todoItems = JSON.parse(localStorage.getItem('todoItems') || '[]');
-    todoItems = todoItems.filter(item => item.id !== taskId);
-    localStorage.setItem('todoItems', JSON.stringify(todoItems));
+/** 🔄 SPARKS FEED (6-hour refresh) **/
+function updateSparksFeed() {
+    const lastUpdate = localStorage.getItem('sparksLastUpdate');
+    const now = new Date().getTime();
+    const sixHours = 6 * 60 * 60 * 1000;
 
-    const calendarData = JSON.parse(localStorage.getItem('calendarTasks') || '{}');
-    const today = new Date().toISOString().slice(0, 10);
-
-    if (calendarData[today]) {
-        calendarData[today] = calendarData[today].filter(t => t.title !== taskTitle);
-        if (calendarData[today].length === 0) delete calendarData[today];
-        localStorage.setItem('calendarTasks', JSON.stringify(calendarData));
+    if (!lastUpdate || (now - lastUpdate) > sixHours) {
+        const randomIndex = Math.floor(Math.random() * motivationPresets.quotes.length);
+        const quote = motivationPresets.quotes[randomIndex];
+        
+        document.getElementById('motivationQuote').innerText = `"${quote.text}"`;
+        document.getElementById('motivationAuthor').innerText = `— ${quote.author}`;
+        
+        localStorage.setItem('sparksLastUpdate', now);
+        localStorage.setItem('currentSparksQuote', JSON.stringify(quote));
+    } else {
+        const saved = JSON.parse(localStorage.getItem('currentSparksQuote'));
+        document.getElementById('motivationQuote').innerText = `"${saved.text}"`;
+        document.getElementById('motivationAuthor').innerText = `— ${saved.author}`;
     }
-
-    renderTodoUI();
 }
 
-function populateSmartStartTasks() {
-    const taskContainer = document.getElementById('smartStartTaskContainer');
-    const todoItems = JSON.parse(localStorage.getItem('todoItems') || '[]');
+/** 📅 MINI CALENDAR **/
+function renderMiniCalendar() {
+    const grid = document.getElementById('miniCalendarGrid');
+    const label = document.getElementById('miniMonthLabel');
+    if (!grid || !label) return;
 
-    const pendingTasks = todoItems.filter(t => !t.completed);
-    const finishedTasks = todoItems.filter(t => t.completed);
+    grid.innerHTML = '';
 
-    let html = `<h4>📌 Active Tasks</h4>`;
-    if (pendingTasks.length === 0) html += `<p class="empty-msg">No active tasks</p>`;
+    const year = miniDate.getFullYear();
+    const month = miniDate.getMonth();
+    label.innerText = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(miniDate);
 
-    pendingTasks.forEach(task => {
-        html += `<button class="task-opt" onclick="selectTask('${task.title}')">${task.title}</button>`;
-    });
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
 
-    if (finishedTasks.length > 0) {
-        html += `<h4 class="done-label">✅ Recently Finished</h4>`;
-        finishedTasks.forEach(task => {
-            html += `<button class="task-opt finished" onclick="selectTask('${task.title}')">${task.title}</button>`;
-        });
+    for (let i = 0; i < firstDay; i++) {
+        grid.innerHTML += `<div></div>`;
     }
 
-    taskContainer.innerHTML = html;
+    for (let d = 1; d <= daysInMonth; d++) {
+        const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+        grid.innerHTML += `<div class="${isToday ? 'today-cell' : ''}">${d}</div>`;
+    }
+}
+
+// ==================== Modal Openers ====================
+function activeRecall() {
+    const modal = document.getElementById('quickChallengeModal');
+    if (modal) modal.classList.add('show');
+}
+
+function enterFlowstate() {
+    const modal = document.getElementById('startSessionModal');
+    if (modal) {
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+        modal.dataset.fromSidebar = 'false';
+        showStartModalTaskList();  // populate tasks
+    }
+}
+
+function mentalReset() {
+    const modal = document.getElementById('brainFogModal');
+    if (modal) modal.classList.add('show');
+}
+
+function initializeSparksFeed() {
+    const quoteObj = motivationPresets.quotes[Math.floor(Math.random() * motivationPresets.quotes.length)];
+    const quoteEl = document.getElementById('motivationQuote');
+    const authorEl = document.getElementById('motivationAuthor');
+    if (quoteEl) quoteEl.innerText = `"${quoteObj.text}"`;
+    if (authorEl) authorEl.innerText = `— ${quoteObj.author}`;
 }

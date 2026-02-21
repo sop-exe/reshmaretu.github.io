@@ -5,6 +5,26 @@
 
 const STATS_KEY = 'user_stats';
 
+// Migration: ensure dailyFocus exists and has correct structure
+function migrateStats() {
+    const stats = getStats();
+    let changed = false;
+    if (!stats.dailyFocus || typeof stats.dailyFocus !== 'object') {
+        stats.dailyFocus = { date: new Date().toISOString().slice(0,10), sessions:0, exits:0, distractions:0 };
+        changed = true;
+    } else {
+        // Ensure all fields are numbers
+        stats.dailyFocus.sessions = stats.dailyFocus.sessions || 0;
+        stats.dailyFocus.exits = stats.dailyFocus.exits || 0;
+        stats.dailyFocus.distractions = stats.dailyFocus.distractions || 0;
+        changed = true;
+    }
+    if (!stats.mood_entries) { stats.mood_entries = []; changed = true; }
+    if (!stats.burnoutScore) { stats.burnoutScore = 0; changed = true; }
+    if (changed) saveStats(stats);
+}
+migrateStats();
+
 function getStats() {
     try {
         const raw = localStorage.getItem(STATS_KEY);
@@ -36,7 +56,11 @@ function ensureDailyFocus() {
 
 function getFocusScore() {
     const daily = ensureDailyFocus();
-    let score = 50 + daily.sessions*10 - daily.exits*5 - daily.distractions*3;
+    // ensure numeric values
+    const sessions = daily.sessions || 0;
+    const exits = daily.exits || 0;
+    const distractions = daily.distractions || 0;
+    let score = 50 + sessions*10 - exits*5 - distractions*3;
     return Math.max(0, Math.min(100, score));
 }
 

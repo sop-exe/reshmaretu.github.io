@@ -145,3 +145,5 @@
 @media (max-width: 900px) {
     .calendar-grid-large { grid-template-columns: repeat(7, 1fr); }
 }
+
+
